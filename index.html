@@ -14,24 +14,19 @@
         body { font-family: -apple-system, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; overflow-x: hidden; }
         .container { width: 100%; max-width: 450px; position: relative; padding-bottom: 60px; }
         .card { background: var(--card); border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center; min-height: 350px; position: relative; }
-        
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .slide-in { animation: slideIn 0.3s ease-out; }
-
         @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-8px); } 100% { transform: translateX(0); } }
         .shake { animation: shake 0.2s ease-in-out 0s 2; border: 2px solid var(--error); }
-
         @keyframes correctCircle { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 30% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
         .correct-anime { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 200px; border: 20px solid var(--error); border-radius: 50%; pointer-events: none; z-index: 1000; opacity: 0; }
         .run-anime { animation: correctCircle 0.6s ease-out; }
-
         .back-btn { position: absolute; top: 10px; left: 10px; background: none; border: none; color: var(--primary); font-size: 16px; cursor: pointer; display: none; z-index: 10; }
         .timer-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 50px; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; z-index: 100; }
         .timer-bar { position: absolute; top: 0; right: 0; height: 100%; background: var(--primary); width: 100%; transition: width 1s linear; opacity: 0.6; }
         .timer-text { position: relative; font-weight: bold; font-size: 18px; z-index: 101; }
         .urgent { background: var(--error) !important; color: var(--error) !important; animation: blink 0.5s infinite alternate; }
         @keyframes blink { from { opacity: 1; } to { opacity: 0.4; } }
-
         .menu-btn { width: 100%; padding: 16px; margin-bottom: 10px; border: none; border-radius: 12px; background: #E5E5EA; color: var(--text); font-size: 16px; font-weight: 600; cursor: pointer; }
         .menu-btn.primary { background: var(--primary); color: white; }
         .option-btn { width: 100%; padding: 16px; margin-top: 10px; border: 2px solid #E5E5EA; border-radius: 12px; background: white; text-align: left; font-size: 15px; }
@@ -51,16 +46,15 @@
     <div id="genre-screen" class="card">
         <h1>学習を開始</h1>
         <p>資格を選択してください</p>
-        <button class="menu-btn primary" onclick="initAudio(); showSubGenre('TOEIC')">🔤 TOEIC</button>
-        <button class="menu-btn primary" onclick="initAudio(); showSubGenre('FE')">💻 基本情報技術者</button>
-        <button class="menu-btn primary" onclick="initAudio(); showSubGenre('AWS')">☁️ AWS SAA</button>
+        <button class="menu-btn primary" onclick="handleStart('TOEIC')">🔤 TOEIC</button>
+        <button class="menu-btn primary" onclick="handleStart('FE')">💻 基本情報技術者</button>
+        <button class="menu-btn primary" onclick="handleStart('AWS')">☁️ AWS SAA</button>
     </div>
 
     <div id="sub-genre-screen" class="card hidden">
         <h1 id="sub-title">ジャンル</h1>
         <div id="sub-menu-list"></div>
     </div>
-
     <div id="quiz-screen" class="card hidden">
         <div id="progress-text" style="font-size: 12px; color: #8E8E93; margin-bottom: 5px;"></div>
         <div id="q-text" style="font-size: 18px; text-align: left; margin-bottom: 20px; font-weight: bold;"></div>
@@ -71,7 +65,6 @@
             <button class="menu-btn primary" style="margin-top: 15px;" onclick="nextStep()">次へ</button>
         </div>
     </div>
-
     <div id="checkpoint-screen" class="card hidden">
         <h1>チェックポイント</h1>
         <p id="checkpoint-stats"></p>
@@ -89,28 +82,46 @@
 </div>
 
 <script>
-    // 音源の設定
-    const sndBgm = new Audio('assets/sounds/BGM/Bubble soda.mp3');
-    sndBgm.loop = true;
-    const sndCorrect = new Audio('assets/sounds/SE/correct.mp3');
-    const sndWrong = new Audio('assets/sounds/SE/noncorrect.mp3');
+    // --- 音源管理 ---
+    const sndBgm = new Audio();
+    const sndCorrect = new Audio();
+    const sndWrong = new Audio();
 
+    // パスを直接設定（ブラウザが先読みしやすいように記述）
+    sndBgm.src = 'assets/sounds/BGM/Bubble_soda.mp3';
+    sndCorrect.src = 'assets/sounds/SE/correct.mp3';
+    sndWrong.src = 'assets/sounds/SE/noncorrect.mp3';
+
+    sndBgm.loop = true;
     const MAX_BGM_VOL = 0.3;
     const MIN_BGM_VOL = 0.05;
     let audioInitialized = false;
 
-    // ブラウザの音制限を解除するための関数
-    function initAudio() {
-        if (audioInitialized) return;
-        // 一瞬だけ再生して停止することで、以降の自動再生を許可させる
-        sndBgm.play().then(() => { sndBgm.pause(); }).catch(e => console.log(e));
-        sndCorrect.load();
-        sndWrong.load();
-        audioInitialized = true;
+    function handleStart(category) {
+        if (!audioInitialized) {
+            // ブラウザに「今から音を出すよ」と宣言
+            sndBgm.load();
+            sndCorrect.load();
+            sndWrong.load();
+            
+            // 一度だけ再生を試みて即停止（ロック解除）
+            const promise = sndBgm.play();
+            if (promise !== undefined) {
+                promise.then(_ => {
+                    sndBgm.pause();
+                    console.log("Audio Unlocked Success");
+                }).catch(error => {
+                    console.log("Audio Unlocked Failed:", error);
+                });
+            }
+            audioInitialized = true;
+        }
+        showSubGenre(category);
     }
 
     let pool = [], currentSet = [], wrongQuestions = [], currentIdx = 0, timerInterval, timeLeft = 30, isRetryMode = false;
 
+    // BGMボリュームフェード
     function fadeBgm(targetVolume, duration = 1000) {
         const startVolume = sndBgm.volume;
         const startTime = performance.now();
@@ -124,9 +135,22 @@
     }
 
     const subGenres = {
-        'TOEIC': [{ name: '動詞問題', file: 'TOEIC/verbs.csv' }, { name: '前置詞問題', file: 'TOEIC/prepositions.csv' }, { name: '副詞問題', file: 'TOEIC/adverbs.csv' }, { name: '形容詞問題', file: 'TOEIC/adjectives.csv' }],
-        'FE': [{ name: 'ネットワーク', file: 'FE/network.csv' }, { name: 'セキュリティ', file: 'FE/security.csv' }],
-        'AWS': [{ name: 'S3/Storage', file: 'AWS/s3.csv' }, { name: 'Compute/EC2', file: 'AWS/ec2.csv' }]
+        'TOEIC': [
+            { name: '動詞問題', file: 'TOEIC/verbs.csv' }, 
+            { name: '前置詞問題', file: 'TOEIC/prepositions.csv' }, 
+            { name: '副詞問題', file: 'TOEIC/adverbs.csv' }, 
+            { name: '形容詞問題', file: 'TOEIC/adjectives.csv' }
+        ],
+        'FE': [
+            { name: 'ネットワーク', file: 'FE/network.csv' }, 
+            { name: 'セキュリティ', file: 'FE/security.csv' }
+        ],
+        'AWS': [
+            { name: 'Compute/EC2', file: 'AWS/ec2.csv' }, 
+            { name: 'Storage/S3', file: 'AWS/s3.csv' },
+            { name: 'Security/IAM', file: 'AWS/iam.csv' }, // 新規追加
+            { name: 'Database/RDS', file: 'AWS/rds.csv' }  // 新規追加
+        ]
     };
 
     function showSubGenre(category) {
@@ -151,20 +175,14 @@
             complete: function(results) {
                 pool = results.data.sort(() => Math.random() - 0.5);
                 startNewSet();
-            },
-            error: function(err) { alert("CSVの読み込みに失敗しました: " + path); }
+            }
         });
     }
 
     function startNewSet() {
-        isRetryMode = false; 
-        wrongQuestions = [];
+        isRetryMode = false; wrongQuestions = [];
         currentSet = pool.splice(0, 10);
-        if (currentSet.length === 0) { 
-            alert("全ての問題を解き終えました！");
-            goBack(); 
-            return; 
-        }
+        if (currentSet.length === 0) { goBack(); return; }
         currentIdx = 0;
         showQuiz();
     }
@@ -175,11 +193,10 @@
         document.getElementById('quiz-screen').classList.remove('hidden');
         document.getElementById('timer-ui').classList.remove('hidden');
         
-        if (sndBgm.paused) {
-            sndBgm.volume = 0;
-            sndBgm.play().catch(e => console.log("BGM Play Error:", e));
-        }
+        sndBgm.volume = 0;
+        sndBgm.play().catch(e => console.error("Play error:", e));
         fadeBgm(MAX_BGM_VOL, 1500);
+        
         renderQuestion();
     }
 
@@ -270,10 +287,7 @@
         isRetryMode = true; currentSet = [...wrongQuestions]; wrongQuestions = []; currentIdx = 0; showQuiz();
     }
 
-    function continueNext() { 
-        // 10問追加で読み込み、クイズ画面を表示する
-        startNewSet();
-    }
+    function continueNext() { startNewSet(); }
     
     function goBack() { 
         clearInterval(timerInterval); 
