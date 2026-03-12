@@ -1,4 +1,0 @@
-question,option1,option2,option3,option4,answer,explanation
-"S3 Standardストレージクラスにおいて、最小保管期間の制約はありますか？","制限なし","30日","90日","180日",1,"S3 Standardには最小保管期間の制限はありません。S3 Standard-IAは30日、Archive系はさらに長い制限があります。"
-"複数のAZにまたがって高い可用性とスケーラビリティを持つフルマネージドなSQLデータベースはどれですか？","Amazon RDS (Single-AZ)","Amazon DynamoDB","Amazon Aurora","Amazon ElastiCache",3,"Amazon Auroraは、3つのAZにまたがって6つのデータコピーを保持する、高性能かつ高可用なリレーショナルデータベースです。"
-"オンプレミスからAWSへ、専用線を利用して安定した低レイテンシなネットワーク接続を提供するサービスは？","AWS VPN","AWS Direct Connect","Amazon Route 53","AWS CloudFront",2,"AWS Direct Connectは、インターネットを介さず専用線でAWSと接続するサービスです。"
