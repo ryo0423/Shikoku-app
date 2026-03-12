@@ -133,8 +133,9 @@
         list.innerHTML = '';
         subGenres[category].forEach(item => {
             const btn = document.createElement('button');
-            btn.className = 'menu-btn primary'; b.innerText = item.name;
-            btn.onclick = () => loadCSV(item.file);
+            btn.className = 'menu-btn primary'; 
+            btn.innerText = item.name; 
+            btn.onclick = () => loadCSV(item.file); 
             list.appendChild(btn);
         });
     }
