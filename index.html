@@ -10,28 +10,40 @@
     <title>資格学習プロ</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        :root { --primary: #007AFF; --bg: #F2F2F7; --card: #FFFFFF; --text: #1C1C1E; --error: #FF3B30; }
-        body { font-family: -apple-system, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 450px; position: relative; }
-        .card { background: var(--card); border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center; min-height: 300px; }
+        :root { --primary: #007AFF; --bg: #F2F2F7; --card: #FFFFFF; --text: #1C1C1E; --error: #FF3B30; --success: #28a745; }
+        body { font-family: -apple-system, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; overflow-x: hidden; }
+        .container { width: 100%; max-width: 450px; position: relative; padding-bottom: 60px; }
+        .card { background: var(--card); border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center; min-height: 350px; position: relative; }
         
-        /* 戻るボタン */
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .slide-in { animation: slideIn 0.3s ease-out; }
+
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-8px); } 100% { transform: translateX(0); } }
+        .shake { animation: shake 0.2s ease-in-out 0s 2; border: 2px solid var(--error); }
+
+        @keyframes correctCircle { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 30% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
+        .correct-anime { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 200px; border: 20px solid var(--error); border-radius: 50%; pointer-events: none; z-index: 1000; opacity: 0; }
+        .run-anime { animation: correctCircle 0.6s ease-out; }
+
         .back-btn { position: absolute; top: 10px; left: 10px; background: none; border: none; color: var(--primary); font-size: 16px; cursor: pointer; display: none; z-index: 10; }
-        
-        /* タイマー */
-        #timer { font-size: 20px; font-weight: bold; color: var(--primary); margin-bottom: 10px; }
-        #timer.warning { color: var(--error); }
+        .timer-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 50px; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; z-index: 100; }
+        .timer-bar { position: absolute; top: 0; right: 0; height: 100%; background: var(--primary); width: 100%; transition: width 1s linear; opacity: 0.6; }
+        .timer-text { position: relative; font-weight: bold; font-size: 18px; z-index: 101; }
+        .urgent { background: var(--error) !important; color: var(--error) !important; animation: blink 0.5s infinite alternate; }
+        @keyframes blink { from { opacity: 1; } to { opacity: 0.4; } }
 
         .menu-btn { width: 100%; padding: 16px; margin-bottom: 10px; border: none; border-radius: 12px; background: #E5E5EA; color: var(--text); font-size: 16px; font-weight: 600; cursor: pointer; }
         .menu-btn.primary { background: var(--primary); color: white; }
         .option-btn { width: 100%; padding: 16px; margin-top: 10px; border: 2px solid #E5E5EA; border-radius: 12px; background: white; text-align: left; font-size: 15px; }
         .hidden { display: none; }
         .result { margin-top: 20px; padding: 15px; border-radius: 12px; font-weight: bold; }
-        .correct { background: #E2F9E1; color: #28a745; }
-        .wrong { background: #FFF0F0; color: #dc3545; }
+        .correct { background: #E2F9E1; color: var(--success); }
+        .wrong { background: #FFF0F0; color: var(--error); }
     </style>
 </head>
 <body>
+
+<div id="circle-anime" class="correct-anime"></div>
 
 <div class="container">
     <button id="global-back-btn" class="back-btn" onclick="goBack()">◀ 戻る</button>
@@ -50,37 +62,66 @@
     </div>
 
     <div id="quiz-screen" class="card hidden">
-        <div id="timer">30</div>
-        <div id="q-text" style="font-size: 18px; text-align: left; margin-bottom: 20px;"></div>
+        <div id="progress-text" style="font-size: 12px; color: #8E8E93; margin-bottom: 5px;"></div>
+        <div id="q-text" style="font-size: 18px; text-align: left; margin-bottom: 20px; font-weight: bold;"></div>
         <div id="options-list"></div>
         <div id="result-box" class="result hidden">
             <span id="ans-status"></span>
             <div id="ans-desc" style="font-weight: normal; font-size: 13px; margin-top: 10px;"></div>
-            <button class="menu-btn primary" style="margin-top: 15px;" onclick="renderQuestion()">次の問題</button>
+            <button class="menu-btn primary" style="margin-top: 15px;" onclick="nextStep()">次へ</button>
         </div>
+    </div>
+
+    <div id="checkpoint-screen" class="card hidden">
+        <h1>チェックポイント</h1>
+        <p id="checkpoint-stats"></p>
+        <div id="retry-section" class="hidden">
+            <button class="menu-btn primary" onclick="startRetry()">❌ 間違えた問題だけ解き直す</button>
+        </div>
+        <button class="menu-btn" onclick="continueNext()">⏩ 次の10問へ進む</button>
+        <button class="menu-btn" style="background:none; color:var(--primary)" onclick="goBack()">メニューに戻る</button>
     </div>
 </div>
 
+<div id="timer-ui" class="timer-container hidden">
+    <div id="timer-bar" class="timer-bar"></div>
+    <div class="timer-text">TIME: <span id="timer-num">30</span></div>
+</div>
+
 <script>
-    let currentData = [];
-    let timerInterval;
-    let timeLeft = 30;
+    // --- 音源と音量制御の設定 ---
+    const sndBgm = new Audio('assets/sounds/BGM/Bubble soda.mp3');
+    sndBgm.loop = true;
+    const MAX_BGM_VOL = 0.3; // 通常時の最大音量
+    const MIN_BGM_VOL = 0.05; // チェックポイント時の音量
+    sndBgm.volume = 0; // 最初は0から開始
+
+    const sndCorrect = new Audio('assets/sounds/SE/correct.mp3');
+    const sndWrong = new Audio('assets/sounds/SE/noncorrect.mp3');
+
+    let pool = [], currentSet = [], wrongQuestions = [], currentIdx = 0, timerInterval, timeLeft = 30, isRetryMode = false;
+
+    // --- BGMフェード制御関数 ---
+    function fadeBgm(targetVolume, duration = 1000) {
+        const startVolume = sndBgm.volume;
+        const startTime = performance.now();
+
+        function updateVolume(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            sndBgm.volume = startVolume + (targetVolume - startVolume) * progress;
+
+            if (progress < 1) {
+                requestAnimationFrame(updateVolume);
+            }
+        }
+        requestAnimationFrame(updateVolume);
+    }
 
     const subGenres = {
-        'TOEIC': [
-            { name: '前置詞問題', file: 'TOEIC/prepositions.csv' },
-            { name: '副詞問題', file: 'TOEIC/adverbs.csv' },
-            { name: '形容詞問題', file: 'TOEIC/adjectives.csv' },
-            { name: '動詞問題', file: 'TOEIC/verbs.csv' }
-        ],
-        'FE': [
-            { name: 'ネットワーク', file: 'FE/network.csv' },
-            { name: 'セキュリティ', file: 'FE/security.csv' }
-        ],
-        'AWS': [
-            { name: 'S3/Storage', file: 'AWS/s3.csv' },
-            { name: 'Compute/EC2', file: 'AWS/ec2.csv' }
-        ]
+        'TOEIC': [{ name: '動詞問題', file: 'TOEIC/verbs.csv' }, { name: '前置詞問題', file: 'TOEIC/prepositions.csv' }, { name: '副詞問題', file: 'TOEIC/adverbs.csv' }, { name: '形容詞問題', file: 'TOEIC/adjectives.csv' }],
+        'FE': [{ name: 'ネットワーク', file: 'FE/network.csv' }, { name: 'セキュリティ', file: 'FE/security.csv' }],
+        'AWS': [{ name: 'S3/Storage', file: 'AWS/s3.csv' }, { name: 'Compute/EC2', file: 'AWS/ec2.csv' }]
     };
 
     function showSubGenre(category) {
@@ -88,82 +129,158 @@
         document.getElementById('sub-genre-screen').classList.remove('hidden');
         document.getElementById('global-back-btn').style.display = 'block';
         document.getElementById('sub-title').innerText = category;
-        
         const list = document.getElementById('sub-menu-list');
         list.innerHTML = '';
         subGenres[category].forEach(item => {
             const btn = document.createElement('button');
-            btn.className = 'menu-btn primary';
-            btn.innerText = item.name;
+            btn.className = 'menu-btn primary'; b.innerText = item.name;
             btn.onclick = () => loadCSV(item.file);
             list.appendChild(btn);
         });
     }
 
+    // --- (以下、中略部分は前回のロジックと同じですが、再生・停止部分のみ書き換えます) ---
     function loadCSV(path) {
         Papa.parse(`./questions/${path}`, {
             download: true, header: true, skipEmptyLines: true,
             complete: function(results) {
-                currentData = results.data;
-                document.getElementById('sub-genre-screen').classList.add('hidden');
-                document.getElementById('quiz-screen').classList.remove('hidden');
-                renderQuestion();
+                pool = results.data.sort(() => Math.random() - 0.5);
+                startNewSet();
             }
         });
     }
 
-    function startTimer() {
-        clearInterval(timerInterval);
-        timeLeft = 30;
-        const timerDisplay = document.getElementById('timer');
-        timerDisplay.innerText = timeLeft;
-        timerDisplay.classList.remove('warning');
+    function startNewSet() {
+        isRetryMode = false; wrongQuestions = [];
+        currentSet = pool.splice(0, 10);
+        if (currentSet.length === 0) { goBack(); return; }
+        currentIdx = 0;
+        showQuiz();
+    }
+
+    function showQuiz() {
+        document.getElementById('sub-genre-screen').classList.add('hidden');
+        document.getElementById('checkpoint-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        document.getElementById('timer-ui').classList.remove('hidden');
         
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            timerDisplay.innerText = timeLeft;
-            if (timeLeft <= 5) timerDisplay.classList.add('warning');
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                showResult(false, "タイムアップ！");
-            }
-        }, 1000);
+        // BGM開始 & フェードイン
+        if (sndBgm.paused) {
+            sndBgm.play().catch(() => {});
+        }
+        fadeBgm(MAX_BGM_VOL, 1500); // 1.5秒かけてフェードイン
+        
+        renderQuestion();
     }
 
     function renderQuestion() {
         clearInterval(timerInterval);
+        const quizScreen = document.getElementById('quiz-screen');
+        quizScreen.classList.remove('shake', 'slide-in');
+        void quizScreen.offsetWidth;
+        quizScreen.classList.add('slide-in');
+
         document.getElementById('result-box').classList.add('hidden');
-        const q = currentData[Math.floor(Math.random() * currentData.length)];
+        const q = currentSet[currentIdx];
+        document.getElementById('progress-text').innerText = `${isRetryMode ? '【解き直し】' : 'セット'} : ${currentIdx + 1} / ${currentSet.length}`;
         document.getElementById('q-text').innerText = q.question;
         const list = document.getElementById('options-list');
         list.innerHTML = '';
         [1,2,3,4].forEach(num => {
             if (q[`option${num}`]) {
                 const b = document.createElement('button');
-                b.className = 'option-btn';
-                b.innerText = q[`option${num}`];
-                b.onclick = () => {
-                    clearInterval(timerInterval);
-                    showResult(num == q.answer, q.explanation);
-                };
+                b.className = 'option-btn'; b.innerText = q[`option${num}`];
+                b.onclick = () => checkAnswer(num, q);
                 list.appendChild(b);
             }
         });
         startTimer();
     }
 
-    function showResult(isCorrect, desc) {
+    function startTimer() {
+        timeLeft = 30; updateTimerUI();
+        timerInterval = setInterval(() => {
+            timeLeft--; updateTimerUI();
+            if (timeLeft <= 0) { clearInterval(timerInterval); checkAnswer(-1, currentSet[currentIdx]); }
+        }, 1000);
+    }
+
+    function updateTimerUI() {
+        const bar = document.getElementById('timer-bar');
+        const num = document.getElementById('timer-num');
+        bar.style.width = (timeLeft / 30 * 100) + "%";
+        num.innerText = timeLeft;
+        if (timeLeft <= 5) { bar.classList.add('urgent'); num.parentElement.classList.add('urgent'); }
+        else { bar.classList.remove('urgent'); num.parentElement.classList.remove('urgent'); }
+    }
+
+    function checkAnswer(selected, q) {
+        clearInterval(timerInterval);
+        const isCorrect = (selected == q.answer);
+        const quizScreen = document.getElementById('quiz-screen');
+        const circle = document.getElementById('circle-anime');
+
+        if (isCorrect) {
+            sndCorrect.play();
+            circle.classList.add('run-anime');
+            setTimeout(() => circle.classList.remove('run-anime'), 600);
+        } else {
+            sndWrong.play();
+            quizScreen.classList.add('shake');
+            if (!isRetryMode) wrongQuestions.push(q);
+        }
+
         const rb = document.getElementById('result-box');
         rb.classList.remove('hidden');
         rb.className = `result ${isCorrect ? 'correct' : 'wrong'}`;
         document.getElementById('ans-status').innerText = isCorrect ? "⭕ 正解！" : "❌ 不正解";
-        document.getElementById('ans-desc').innerText = "解説: " + desc;
+        document.getElementById('ans-desc').innerText = "解説: " + q.explanation;
         document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
     }
 
-    function goBack() {
-        clearInterval(timerInterval);
-        location.reload(); // シンプルに初期状態へ戻す
+    function nextStep() {
+        currentIdx++;
+        if (currentIdx < currentSet.length) renderQuestion();
+        else showCheckpoint();
+    }
+
+    function showCheckpoint() {
+        // BGMを小さくする（フェードアウト気味に音量を下げる）
+        fadeBgm(MIN_BGM_VOL, 1000);
+        
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('timer-ui').classList.add('hidden');
+        document.getElementById('checkpoint-screen').classList.remove('hidden');
+        const score = currentSet.length - wrongQuestions.length;
+        document.getElementById('checkpoint-stats').innerText = `${currentSet.length}問中 ${score}問正解！`;
+        document.getElementById('retry-section').className = wrongQuestions.length > 0 ? '' : 'hidden';
+    }
+
+    function startRetry() {
+        isRetryMode = true; currentSet = [...wrongQuestions]; wrongQuestions = []; currentIdx = 0; showQuiz();
+    }
+
+    function continueNext() { startNewSet(); }
+    
+    function goBack() { 
+        clearInterval(timerInterval); 
+        // 完全に終了する場合はBGMをフェードアウトして止める
+        const startVol = sndBgm.volume;
+        const duration = 800;
+        const startTime = performance.now();
+        function fadeOutAndStop(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            sndBgm.volume = startVol * (1 - progress);
+            if (progress < 1) {
+                requestAnimationFrame(fadeOutAndStop);
+            } else {
+                sndBgm.pause();
+                sndBgm.currentTime = 0;
+                location.reload(); 
+            }
+        }
+        requestAnimationFrame(fadeOutAndStop);
     }
 </script>
 </body>
