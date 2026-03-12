@@ -3,187 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>資格学習ポータル</title>
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>資格学習プロ</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        :root {
-            --primary: #007AFF;
-            --bg: #F2F2F7;
-            --card: #FFFFFF;
-            --text: #1C1C1E;
-        }
+        :root { --primary: #007AFF; --bg: #F2F2F7; --card: #FFFFFF; --text: #1C1C1E; --error: #FF3B30; }
+        body { font-family: -apple-system, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 450px; position: relative; }
+        .card { background: var(--card); border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center; min-height: 300px; }
+        
+        /* 戻るボタン */
+        .back-btn { position: absolute; top: 10px; left: 10px; background: none; border: none; color: var(--primary); font-size: 16px; cursor: pointer; display: none; z-index: 10; }
+        
+        /* タイマー */
+        #timer { font-size: 20px; font-weight: bold; color: var(--primary); margin-bottom: 10px; }
+        #timer.warning { color: var(--error); }
 
-        body {
-            font-family: -apple-system, sans-serif;
-            background-color: var(--bg);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container { width: 100%; max-width: 450px; }
-
-        .card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-
-        h1 { font-size: 22px; margin-bottom: 8px; color: var(--text); }
-        p.subtitle { color: #8E8E93; margin-bottom: 24px; font-size: 14px; }
-
-        /* ジャンル選択ボタン */
-        .menu-btn {
-            width: 100%;
-            padding: 18px;
-            margin-bottom: 12px;
-            border: none;
-            border-radius: 12px;
-            background: #E5E5EA;
-            color: var(--text);
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .menu-btn:active { transform: scale(0.97); background: #D1D1D6; }
+        .menu-btn { width: 100%; padding: 16px; margin-bottom: 10px; border: none; border-radius: 12px; background: #E5E5EA; color: var(--text); font-size: 16px; font-weight: 600; cursor: pointer; }
         .menu-btn.primary { background: var(--primary); color: white; }
-
-        /* クイズエリア */
-        #question-box { text-align: left; margin-bottom: 20px; }
-        .option-btn {
-            width: 100%;
-            padding: 16px;
-            margin-top: 10px;
-            border: 2px solid #E5E5EA;
-            border-radius: 12px;
-            background: white;
-            text-align: left;
-            font-size: 15px;
-            cursor: pointer;
-        }
-
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 12px;
-            font-weight: bold;
-            display: none;
-        }
-        .correct { background: #E2F9E1; color: #28a745; border: 1px solid #28a745; }
-        .wrong { background: #FFF0F0; color: #dc3545; border: 1px solid #dc3545; }
-
+        .option-btn { width: 100%; padding: 16px; margin-top: 10px; border: 2px solid #E5E5EA; border-radius: 12px; background: white; text-align: left; font-size: 15px; }
         .hidden { display: none; }
-        .explanation { font-weight: normal; font-size: 13px; margin-top: 10px; color: #444; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 12px; font-weight: bold; }
+        .correct { background: #E2F9E1; color: #28a745; }
+        .wrong { background: #FFF0F0; color: #dc3545; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="home-screen" class="card">
+    <button id="global-back-btn" class="back-btn" onclick="goBack()">◀ 戻る</button>
+
+    <div id="genre-screen" class="card">
         <h1>学習を開始</h1>
-        <p class="subtitle">挑戦する資格を選択してください</p>
-        
-        <button class="menu-btn primary" onclick="initQuiz('AWS_SAA.csv', 'AWS SAA')">☁️ AWS SAA</button>
-        <button class="menu-btn primary" onclick="initQuiz('FE.csv', '基本情報技術者')">💻 基本情報技術者</button>
-        <button class="menu-btn primary" onclick="initQuiz('TOEIC.csv', 'TOEIC')">🔤 TOEIC</button>
+        <p>資格を選択してください</p>
+        <button class="menu-btn primary" onclick="showSubGenre('TOEIC')">🔤 TOEIC</button>
+        <button class="menu-btn primary" onclick="showSubGenre('FE')">💻 基本情報技術者</button>
+        <button class="menu-btn primary" onclick="showSubGenre('AWS')">☁️ AWS SAA</button>
+    </div>
+
+    <div id="sub-genre-screen" class="card hidden">
+        <h1 id="sub-title">ジャンル</h1>
+        <div id="sub-menu-list"></div>
     </div>
 
     <div id="quiz-screen" class="card hidden">
-        <div id="genre-label" style="font-size: 12px; color: var(--primary); font-weight: bold; margin-bottom: 10px;"></div>
-        <div id="question-box">
-            <h2 id="q-text" style="font-size: 18px;"></h2>
-            <div id="options-list"></div>
-        </div>
-
-        <div id="result-box" class="result">
+        <div id="timer">30</div>
+        <div id="q-text" style="font-size: 18px; text-align: left; margin-bottom: 20px;"></div>
+        <div id="options-list"></div>
+        <div id="result-box" class="result hidden">
             <span id="ans-status"></span>
-            <div id="ans-desc" class="explanation"></div>
+            <div id="ans-desc" style="font-weight: normal; font-size: 13px; margin-top: 10px;"></div>
             <button class="menu-btn primary" style="margin-top: 15px;" onclick="renderQuestion()">次の問題</button>
-            <button class="menu-btn" style="font-size: 12px; background: none; color: #8E8E93;" onclick="location.reload()">ジャンルを選び直す</button>
         </div>
     </div>
 </div>
 
 <script>
     let currentData = [];
-    let currentGenre = "";
+    let timerInterval;
+    let timeLeft = 30;
 
-    // ジャンル選択 & CSV読み込み
-    function initQuiz(file, label) {
-        currentGenre = label;
-        // パスの先頭に ./ を追加して、確実に同じ階層の questions フォルダを見に行くようにします
-        Papa.parse(`./questions/${file}`, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
+    const subGenres = {
+        'TOEIC': [
+            { name: '前置詞問題', file: 'TOEIC/prepositions.csv' },
+            { name: '副詞問題', file: 'TOEIC/adverbs.csv' },
+            { name: '形容詞問題', file: 'TOEIC/adjectives.csv' },
+            { name: '動詞問題', file: 'TOEIC/verbs.csv' }
+        ],
+        'FE': [
+            { name: 'ネットワーク', file: 'FE/network.csv' },
+            { name: 'セキュリティ', file: 'FE/security.csv' }
+        ],
+        'AWS': [
+            { name: 'S3/Storage', file: 'AWS/s3.csv' },
+            { name: 'Compute/EC2', file: 'AWS/ec2.csv' }
+        ]
+    };
+
+    function showSubGenre(category) {
+        document.getElementById('genre-screen').classList.add('hidden');
+        document.getElementById('sub-genre-screen').classList.remove('hidden');
+        document.getElementById('global-back-btn').style.display = 'block';
+        document.getElementById('sub-title').innerText = category;
+        
+        const list = document.getElementById('sub-menu-list');
+        list.innerHTML = '';
+        subGenres[category].forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'menu-btn primary';
+            btn.innerText = item.name;
+            btn.onclick = () => loadCSV(item.file);
+            list.appendChild(btn);
+        });
+    }
+
+    function loadCSV(path) {
+        Papa.parse(`./questions/${path}`, {
+            download: true, header: true, skipEmptyLines: true,
             complete: function(results) {
-                // デバッグ用：データが正しく読み込めているかコンソールに表示
-                console.log("読み込みデータ:", results.data);
-                
-                currentData = results.data.filter(row => row.question); // 空行除外の補強
-                
-                if (currentData.length === 0) {
-                    alert("CSVファイルが空か、読み込みに失敗しました。");
-                    return;
-                }
-
-                document.getElementById('home-screen').classList.add('hidden');
+                currentData = results.data;
+                document.getElementById('sub-genre-screen').classList.add('hidden');
                 document.getElementById('quiz-screen').classList.remove('hidden');
-                document.getElementById('genre-label').innerText = `【${currentGenre}】`;
                 renderQuestion();
-            },
-            error: function(err) {
-                console.error("読み込みエラー:", err);
-                alert("ファイルの読み込みに失敗しました。パスを確認してください。");
             }
         });
     }
 
-    // 問題を表示
-    function renderQuestion() {
-        const resBox = document.getElementById('result-box');
-        resBox.style.display = 'none';
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = 30;
+        const timerDisplay = document.getElementById('timer');
+        timerDisplay.innerText = timeLeft;
+        timerDisplay.classList.remove('warning');
         
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerDisplay.innerText = timeLeft;
+            if (timeLeft <= 5) timerDisplay.classList.add('warning');
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                showResult(false, "タイムアップ！");
+            }
+        }, 1000);
+    }
+
+    function renderQuestion() {
+        clearInterval(timerInterval);
+        document.getElementById('result-box').classList.add('hidden');
         const q = currentData[Math.floor(Math.random() * currentData.length)];
         document.getElementById('q-text').innerText = q.question;
-        
         const list = document.getElementById('options-list');
-        list.innerHTML = "";
-
+        list.innerHTML = '';
         [1,2,3,4].forEach(num => {
-            const txt = q[`option${num}`];
-            if (txt) {
+            if (q[`option${num}`]) {
                 const b = document.createElement('button');
                 b.className = 'option-btn';
-                b.innerText = txt;
+                b.innerText = q[`option${num}`];
                 b.onclick = () => {
-                    const isCorrect = (num == q.answer);
-                    showResult(isCorrect, q.explanation);
-                    // 全ボタン無効化
-                    document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+                    clearInterval(timerInterval);
+                    showResult(num == q.answer, q.explanation);
                 };
                 list.appendChild(b);
             }
         });
+        startTimer();
     }
 
-    // 結果表示
     function showResult(isCorrect, desc) {
         const rb = document.getElementById('result-box');
-        rb.style.display = 'block';
+        rb.classList.remove('hidden');
         rb.className = `result ${isCorrect ? 'correct' : 'wrong'}`;
-        document.getElementById('ans-status').innerText = isCorrect ? "⭕ 正解！" : "❌ 不正解...";
-        document.getElementById('ans-desc').innerText = "解説: " + (desc || "なし");
+        document.getElementById('ans-status').innerText = isCorrect ? "⭕ 正解！" : "❌ 不正解";
+        document.getElementById('ans-desc').innerText = "解説: " + desc;
+        document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+    }
+
+    function goBack() {
+        clearInterval(timerInterval);
+        location.reload(); // シンプルに初期状態へ戻す
     }
 </script>
-
 </body>
 </html>
