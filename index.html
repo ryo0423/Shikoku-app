@@ -51,9 +51,9 @@
     <div id="genre-screen" class="card">
         <h1>学習を開始</h1>
         <p>資格を選択してください</p>
-        <button class="menu-btn primary" onclick="showSubGenre('TOEIC')">🔤 TOEIC</button>
-        <button class="menu-btn primary" onclick="showSubGenre('FE')">💻 基本情報技術者</button>
-        <button class="menu-btn primary" onclick="showSubGenre('AWS')">☁️ AWS SAA</button>
+        <button class="menu-btn primary" onclick="initAudio(); showSubGenre('TOEIC')">🔤 TOEIC</button>
+        <button class="menu-btn primary" onclick="initAudio(); showSubGenre('FE')">💻 基本情報技術者</button>
+        <button class="menu-btn primary" onclick="initAudio(); showSubGenre('AWS')">☁️ AWS SAA</button>
     </div>
 
     <div id="sub-genre-screen" class="card hidden">
@@ -89,31 +89,36 @@
 </div>
 
 <script>
-    // --- 音源と音量制御の設定 ---
+    // 音源の設定
     const sndBgm = new Audio('assets/sounds/BGM/Bubble soda.mp3');
     sndBgm.loop = true;
-    const MAX_BGM_VOL = 0.3; // 通常時の最大音量
-    const MIN_BGM_VOL = 0.05; // チェックポイント時の音量
-    sndBgm.volume = 0; // 最初は0から開始
-
     const sndCorrect = new Audio('assets/sounds/SE/correct.mp3');
     const sndWrong = new Audio('assets/sounds/SE/noncorrect.mp3');
 
+    const MAX_BGM_VOL = 0.3;
+    const MIN_BGM_VOL = 0.05;
+    let audioInitialized = false;
+
+    // ブラウザの音制限を解除するための関数
+    function initAudio() {
+        if (audioInitialized) return;
+        // 一瞬だけ再生して停止することで、以降の自動再生を許可させる
+        sndBgm.play().then(() => { sndBgm.pause(); }).catch(e => console.log(e));
+        sndCorrect.load();
+        sndWrong.load();
+        audioInitialized = true;
+    }
+
     let pool = [], currentSet = [], wrongQuestions = [], currentIdx = 0, timerInterval, timeLeft = 30, isRetryMode = false;
 
-    // --- BGMフェード制御関数 ---
     function fadeBgm(targetVolume, duration = 1000) {
         const startVolume = sndBgm.volume;
         const startTime = performance.now();
-
         function updateVolume(currentTime) {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
             sndBgm.volume = startVolume + (targetVolume - startVolume) * progress;
-
-            if (progress < 1) {
-                requestAnimationFrame(updateVolume);
-            }
+            if (progress < 1) requestAnimationFrame(updateVolume);
         }
         requestAnimationFrame(updateVolume);
     }
@@ -140,21 +145,26 @@
         });
     }
 
-    // --- (以下、中略部分は前回のロジックと同じですが、再生・停止部分のみ書き換えます) ---
     function loadCSV(path) {
-        Papa.parse(`./questions/${path}`, {
+        Papa.parse(`questions/${path}`, {
             download: true, header: true, skipEmptyLines: true,
             complete: function(results) {
                 pool = results.data.sort(() => Math.random() - 0.5);
                 startNewSet();
-            }
+            },
+            error: function(err) { alert("CSVの読み込みに失敗しました: " + path); }
         });
     }
 
     function startNewSet() {
-        isRetryMode = false; wrongQuestions = [];
+        isRetryMode = false; 
+        wrongQuestions = [];
         currentSet = pool.splice(0, 10);
-        if (currentSet.length === 0) { goBack(); return; }
+        if (currentSet.length === 0) { 
+            alert("全ての問題を解き終えました！");
+            goBack(); 
+            return; 
+        }
         currentIdx = 0;
         showQuiz();
     }
@@ -165,12 +175,11 @@
         document.getElementById('quiz-screen').classList.remove('hidden');
         document.getElementById('timer-ui').classList.remove('hidden');
         
-        // BGM開始 & フェードイン
         if (sndBgm.paused) {
-            sndBgm.play().catch(() => {});
+            sndBgm.volume = 0;
+            sndBgm.play().catch(e => console.log("BGM Play Error:", e));
         }
-        fadeBgm(MAX_BGM_VOL, 1500); // 1.5秒かけてフェードイン
-        
+        fadeBgm(MAX_BGM_VOL, 1500);
         renderQuestion();
     }
 
@@ -222,11 +231,13 @@
         const circle = document.getElementById('circle-anime');
 
         if (isCorrect) {
-            sndCorrect.play();
+            sndCorrect.currentTime = 0;
+            sndCorrect.play().catch(e => {});
             circle.classList.add('run-anime');
             setTimeout(() => circle.classList.remove('run-anime'), 600);
         } else {
-            sndWrong.play();
+            sndWrong.currentTime = 0;
+            sndWrong.play().catch(e => {});
             quizScreen.classList.add('shake');
             if (!isRetryMode) wrongQuestions.push(q);
         }
@@ -246,26 +257,26 @@
     }
 
     function showCheckpoint() {
-        // BGMを小さくする（フェードアウト気味に音量を下げる）
         fadeBgm(MIN_BGM_VOL, 1000);
-        
         document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById('timer-ui').classList.add('hidden');
         document.getElementById('checkpoint-screen').classList.remove('hidden');
-        const score = currentSet.length - wrongQuestions.length;
+        const score = currentSet.length - (isRetryMode ? 0 : wrongQuestions.length);
         document.getElementById('checkpoint-stats').innerText = `${currentSet.length}問中 ${score}問正解！`;
-        document.getElementById('retry-section').className = wrongQuestions.length > 0 ? '' : 'hidden';
+        document.getElementById('retry-section').className = (!isRetryMode && wrongQuestions.length > 0) ? '' : 'hidden';
     }
 
     function startRetry() {
         isRetryMode = true; currentSet = [...wrongQuestions]; wrongQuestions = []; currentIdx = 0; showQuiz();
     }
 
-    function continueNext() { startNewSet(); }
+    function continueNext() { 
+        // 10問追加で読み込み、クイズ画面を表示する
+        startNewSet();
+    }
     
     function goBack() { 
         clearInterval(timerInterval); 
-        // 完全に終了する場合はBGMをフェードアウトして止める
         const startVol = sndBgm.volume;
         const duration = 800;
         const startTime = performance.now();
@@ -273,13 +284,8 @@
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
             sndBgm.volume = startVol * (1 - progress);
-            if (progress < 1) {
-                requestAnimationFrame(fadeOutAndStop);
-            } else {
-                sndBgm.pause();
-                sndBgm.currentTime = 0;
-                location.reload(); 
-            }
+            if (progress < 1) requestAnimationFrame(fadeOutAndStop);
+            else { sndBgm.pause(); location.reload(); }
         }
         requestAnimationFrame(fadeOutAndStop);
     }
