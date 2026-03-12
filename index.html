@@ -119,7 +119,7 @@
     // ジャンル選択 & CSV読み込み
     function initQuiz(file, label) {
         currentGenre = label;
-        Papa.parse(`問題/${file}`, {
+        Papa.parse(`questions/${file}`, {
             download: true,
             header: true,
             skipEmptyLines: true,
