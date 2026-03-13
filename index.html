@@ -46,16 +46,17 @@
     <div id="genre-screen" class="card">
         <h1>学習を開始</h1>
         <p>資格を選択してください</p>
-        <button class="menu-btn primary" onclick="handleStart('TOEIC')">TOEIC</button>
-        <button class="menu-btn primary" onclick="handleStart('FE')">基本情報技術者</button>
-        <button class="menu-btn primary" onclick="handleStart('AWS')">AWS SAA</button>
-        <button class="menu-btn primary" onclick="handleStart('VBA')">Excel VBA</button>
+        <button class="menu-btn primary" onclick="handleStart('TOEIC')">🔤 TOEIC</button>
+        <button class="menu-btn primary" onclick="handleStart('FE')">💻 基本情報技術者</button>
+        <button class="menu-btn primary" onclick="handleStart('AWS')">☁️ AWS SAA</button>
+        <button class="menu-btn primary" onclick="handleStart('VBA')">📊 Excel VBA</button>
     </div>
 
     <div id="sub-genre-screen" class="card hidden">
         <h1 id="sub-title">ジャンル</h1>
         <div id="sub-menu-list"></div>
     </div>
+
     <div id="quiz-screen" class="card hidden">
         <div id="progress-text" style="font-size: 12px; color: #8E8E93; margin-bottom: 5px;"></div>
         <div id="q-text" style="font-size: 18px; text-align: left; margin-bottom: 20px; font-weight: bold;"></div>
@@ -66,6 +67,7 @@
             <button class="menu-btn primary" style="margin-top: 15px;" onclick="nextStep()">次へ</button>
         </div>
     </div>
+
     <div id="checkpoint-screen" class="card hidden">
         <h1>チェックポイント</h1>
         <p id="checkpoint-stats"></p>
@@ -83,12 +85,11 @@
 </div>
 
 <script>
-    // --- 音源管理 ---
     const sndBgm = new Audio();
     const sndCorrect = new Audio();
     const sndWrong = new Audio();
 
-    // パスを直接設定（ブラウザが先読みしやすいように記述）
+    // パスを直接設定
     sndBgm.src = 'assets/sounds/BGM/Bubble_soda.mp3';
     sndCorrect.src = 'assets/sounds/SE/correct.mp3';
     sndWrong.src = 'assets/sounds/SE/noncorrect.mp3';
@@ -100,19 +101,15 @@
 
     function handleStart(category) {
         if (!audioInitialized) {
-            // ブラウザに「今から音を出すよ」と宣言
             sndBgm.load();
             sndCorrect.load();
             sndWrong.load();
-            
-            // 一度だけ再生を試みて即停止（ロック解除）
             const promise = sndBgm.play();
             if (promise !== undefined) {
                 promise.then(_ => {
                     sndBgm.pause();
-                    console.log("Audio Unlocked Success");
                 }).catch(error => {
-                    console.log("Audio Unlocked Failed:", error);
+                    console.log("Audio Lock Error:", error);
                 });
             }
             audioInitialized = true;
@@ -122,7 +119,6 @@
 
     let pool = [], currentSet = [], wrongQuestions = [], currentIdx = 0, timerInterval, timeLeft = 30, isRetryMode = false;
 
-    // BGMボリュームフェード
     function fadeBgm(targetVolume, duration = 1000) {
         const startVolume = sndBgm.volume;
         const startTime = performance.now();
@@ -135,6 +131,7 @@
         requestAnimationFrame(updateVolume);
     }
 
+    // ジャンルデータ：ここがCSVのパスと紐付きます
     const subGenres = {
         'TOEIC': [
             { name: '動詞問題', file: 'TOEIC/verbs.csv' }, 
@@ -153,7 +150,7 @@
             { name: 'Database/RDS', file: 'AWS/rds.csv' }
         ],
         'VBA': [
-            {name: 'VBA Basic', file: 'VBA/basic.csv'}
+            { name: 'VBA 基礎', file: 'VBA/basic.csv' }
         ]
     };
 
@@ -174,6 +171,7 @@
     }
 
     function loadCSV(path) {
+        // パスの先頭にスラッシュを入れないことで相対パスを安定させます
         Papa.parse(`questions/${path}`, {
             download: true, header: true, skipEmptyLines: true,
             complete: function(results) {
@@ -196,11 +194,9 @@
         document.getElementById('checkpoint-screen').classList.add('hidden');
         document.getElementById('quiz-screen').classList.remove('hidden');
         document.getElementById('timer-ui').classList.remove('hidden');
-        
         sndBgm.volume = 0;
-        sndBgm.play().catch(e => console.error("Play error:", e));
+        sndBgm.play().catch(e => console.error(e));
         fadeBgm(MAX_BGM_VOL, 1500);
-        
         renderQuestion();
     }
 
@@ -210,7 +206,6 @@
         quizScreen.classList.remove('shake', 'slide-in');
         void quizScreen.offsetWidth;
         quizScreen.classList.add('slide-in');
-
         document.getElementById('result-box').classList.add('hidden');
         const q = currentSet[currentIdx];
         document.getElementById('progress-text').innerText = `${isRetryMode ? '【解き直し】' : 'セット'} : ${currentIdx + 1} / ${currentSet.length}`;
@@ -250,7 +245,6 @@
         const isCorrect = (selected == q.answer);
         const quizScreen = document.getElementById('quiz-screen');
         const circle = document.getElementById('circle-anime');
-
         if (isCorrect) {
             sndCorrect.currentTime = 0;
             sndCorrect.play().catch(e => {});
@@ -262,7 +256,6 @@
             quizScreen.classList.add('shake');
             if (!isRetryMode) wrongQuestions.push(q);
         }
-
         const rb = document.getElementById('result-box');
         rb.classList.remove('hidden');
         rb.className = `result ${isCorrect ? 'correct' : 'wrong'}`;
@@ -295,17 +288,7 @@
     
     function goBack() { 
         clearInterval(timerInterval); 
-        const startVol = sndBgm.volume;
-        const duration = 800;
-        const startTime = performance.now();
-        function fadeOutAndStop(currentTime) {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            sndBgm.volume = startVol * (1 - progress);
-            if (progress < 1) requestAnimationFrame(fadeOutAndStop);
-            else { sndBgm.pause(); location.reload(); }
-        }
-        requestAnimationFrame(fadeOutAndStop);
+        location.reload(); 
     }
 </script>
 </body>
