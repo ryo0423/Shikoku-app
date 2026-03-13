@@ -10,10 +10,15 @@
     <title>資格学習プロ</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        :root { --primary: #007AFF; --bg: #F2F2F7; --card: #FFFFFF; --text: #1C1C1E; --error: #FF3B30; --success: #28a745; }
+        :root { --primary: #007AFF; --bg: #F2F2F7; --card: #FFFFFF; --text: #1C1C1E; --error: #FF3B30; --success: #28a745; --gray: #8E8E93; }
         body { font-family: -apple-system, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; overflow-x: hidden; }
         .container { width: 100%; max-width: 450px; position: relative; padding-bottom: 60px; }
         .card { background: var(--card); border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center; min-height: 350px; position: relative; }
+        
+        /* 統計エリアのスタイル */
+        .stats-container { background: #E5E5EA; border-radius: 12px; padding: 10px; margin-bottom: 20px; display: flex; justify-content: space-around; font-size: 13px; color: var(--text); }
+        .stats-item b { font-size: 16px; color: var(--primary); display: block; }
+
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .slide-in { animation: slideIn 0.3s ease-out; }
         @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-8px); } 100% { transform: translateX(0); } }
@@ -22,11 +27,13 @@
         .correct-anime { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 200px; border: 20px solid var(--error); border-radius: 50%; pointer-events: none; z-index: 1000; opacity: 0; }
         .run-anime { animation: correctCircle 0.6s ease-out; }
         .back-btn { position: absolute; top: 10px; left: 10px; background: none; border: none; color: var(--primary); font-size: 16px; cursor: pointer; display: none; z-index: 10; }
+        
         .timer-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 50px; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; z-index: 100; }
         .timer-bar { position: absolute; top: 0; right: 0; height: 100%; background: var(--primary); width: 100%; transition: width 1s linear; opacity: 0.6; }
         .timer-text { position: relative; font-weight: bold; font-size: 18px; z-index: 101; }
-        .urgent { background: var(--error) !important; color: var(--error) !important; animation: blink 0.5s infinite alternate; }
-        @keyframes blink { from { opacity: 1; } to { opacity: 0.4; } }
+        #timer-num.urgent-text { color: var(--error); text-shadow: 0 0 10px var(--error); animation: blink 0.5s infinite alternate; }
+        @keyframes blink { from { opacity: 1; } to { opacity: 0.5; } }
+
         .menu-btn { width: 100%; padding: 16px; margin-bottom: 10px; border: none; border-radius: 12px; background: #E5E5EA; color: var(--text); font-size: 16px; font-weight: 600; cursor: pointer; }
         .menu-btn.primary { background: var(--primary); color: white; }
         .option-btn { width: 100%; padding: 16px; margin-top: 10px; border: 2px solid #E5E5EA; border-radius: 12px; background: white; text-align: left; font-size: 15px; }
@@ -34,6 +41,9 @@
         .result { margin-top: 20px; padding: 15px; border-radius: 12px; font-weight: bold; }
         .correct { background: #E2F9E1; color: var(--success); }
         .wrong { background: #FFF0F0; color: var(--error); }
+        .mode-toggle { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .toggle-btn { padding: 8px 16px; border-radius: 20px; border: 2px solid var(--primary); background: transparent; color: var(--primary); font-weight: bold; cursor: pointer; font-size: 12px; }
+        .toggle-btn.active { background: var(--primary); color: white; }
     </style>
 </head>
 <body>
@@ -45,11 +55,23 @@
 
     <div id="genre-screen" class="card">
         <h1>学習を開始</h1>
-        <p>資格を選択してください</p>
+        
+        <div class="stats-container">
+            <div class="stats-item">通算回答<b id="total-count">0</b></div>
+            <div class="stats-item">総合正答率<b id="total-rate">0%</b></div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--gray);">タイマー設定</p>
+        <div class="mode-toggle">
+            <button id="mode-on" class="toggle-btn active" onclick="setTimerMode(true)">あり (30秒)</button>
+            <button id="mode-off" class="toggle-btn" onclick="setTimerMode(false)">なし</button>
+        </div>
         <button class="menu-btn primary" onclick="handleStart('TOEIC')">🔤 TOEIC</button>
         <button class="menu-btn primary" onclick="handleStart('FE')">💻 基本情報技術者</button>
         <button class="menu-btn primary" onclick="handleStart('AWS')">☁️ AWS SAA</button>
         <button class="menu-btn primary" onclick="handleStart('VBA')">📊 Excel VBA</button>
+        
+        <button onclick="resetStats()" style="margin-top:20px; background:none; border:none; color:var(--gray); font-size:11px; text-decoration:underline;">記録をリセットする</button>
     </div>
 
     <div id="sub-genre-screen" class="card hidden">
@@ -70,7 +92,7 @@
 
     <div id="checkpoint-screen" class="card hidden">
         <h1>チェックポイント</h1>
-        <p id="checkpoint-stats"></p>
+        <div id="checkpoint-stats" style="font-size: 20px; font-weight: bold; margin: 20px 0;"></div>
         <div id="retry-section" class="hidden">
             <button class="menu-btn primary" onclick="startRetry()">❌ 間違えた問題だけ解き直す</button>
         </div>
@@ -81,7 +103,7 @@
 
 <div id="timer-ui" class="timer-container hidden">
     <div id="timer-bar" class="timer-bar"></div>
-    <div class="timer-text">TIME: <span id="timer-num">30</span></div>
+    <div class="timer-text" id="timer-label">TIME: <span id="timer-num">30</span></div>
 </div>
 
 <script>
@@ -89,7 +111,6 @@
     const sndCorrect = new Audio();
     const sndWrong = new Audio();
 
-    // パスを直接設定
     sndBgm.src = 'assets/sounds/BGM/Bubble_soda.mp3';
     sndCorrect.src = 'assets/sounds/SE/correct.mp3';
     sndWrong.src = 'assets/sounds/SE/noncorrect.mp3';
@@ -98,26 +119,53 @@
     const MAX_BGM_VOL = 0.3;
     const MIN_BGM_VOL = 0.05;
     let audioInitialized = false;
+    let isTimerEnabled = true;
+
+    // --- 統計用データ ---
+    let stats = JSON.parse(localStorage.getItem('shikaku_stats')) || { totalAsked: 0, totalCorrect: 0 };
+
+    function updateMainStatsDisplay() {
+        document.getElementById('total-count').innerText = stats.totalAsked;
+        const rate = stats.totalAsked === 0 ? 0 : Math.round((stats.totalCorrect / stats.totalAsked) * 100);
+        document.getElementById('total-rate').innerText = rate + "%";
+    }
+
+    function saveStats(asked, correct) {
+        stats.totalAsked += asked;
+        stats.totalCorrect += correct;
+        localStorage.setItem('shikaku_stats', JSON.stringify(stats));
+        updateMainStatsDisplay();
+    }
+
+    function resetStats() {
+        if(confirm("これまでの学習記録をすべて消去しますか？")) {
+            stats = { totalAsked: 0, totalCorrect: 0 };
+            localStorage.setItem('shikaku_stats', JSON.stringify(stats));
+            updateMainStatsDisplay();
+        }
+    }
+
+    // 初期表示
+    updateMainStatsDisplay();
+
+    function setTimerMode(enabled) {
+        isTimerEnabled = enabled;
+        document.getElementById('mode-on').classList.toggle('active', enabled);
+        document.getElementById('mode-off').classList.toggle('active', !enabled);
+    }
 
     function handleStart(category) {
         if (!audioInitialized) {
-            sndBgm.load();
-            sndCorrect.load();
-            sndWrong.load();
+            sndBgm.load(); sndCorrect.load(); sndWrong.load();
             const promise = sndBgm.play();
-            if (promise !== undefined) {
-                promise.then(_ => {
-                    sndBgm.pause();
-                }).catch(error => {
-                    console.log("Audio Lock Error:", error);
-                });
-            }
+            if (promise !== undefined) promise.then(_ => { sndBgm.pause(); }).catch(e => console.log(e));
             audioInitialized = true;
         }
         showSubGenre(category);
     }
 
     let pool = [], currentSet = [], wrongQuestions = [], currentIdx = 0, timerInterval, timeLeft = 30, isRetryMode = false;
+    let setCorrectCount = 0; // そのセットでの正解数
 
     function fadeBgm(targetVolume, duration = 1000) {
         const startVolume = sndBgm.volume;
@@ -131,27 +179,11 @@
         requestAnimationFrame(updateVolume);
     }
 
-    // ジャンルデータ：ここがCSVのパスと紐付きます
     const subGenres = {
-        'TOEIC': [
-            { name: '動詞問題', file: 'TOEIC/verbs.csv' }, 
-            { name: '前置詞問題', file: 'TOEIC/prepositions.csv' }, 
-            { name: '副詞問題', file: 'TOEIC/adverbs.csv' }, 
-            { name: '形容詞問題', file: 'TOEIC/adjectives.csv' }
-        ],
-        'FE': [
-            { name: 'ネットワーク', file: 'FE/network.csv' }, 
-            { name: 'セキュリティ', file: 'FE/security.csv' }
-        ],
-        'AWS': [
-            { name: 'Compute/EC2', file: 'AWS/ec2.csv' }, 
-            { name: 'Storage/S3', file: 'AWS/s3.csv' },
-            { name: 'Security/IAM', file: 'AWS/iam.csv' },
-            { name: 'Database/RDS', file: 'AWS/rds.csv' }
-        ],
-        'VBA': [
-            { name: 'VBA 基礎', file: 'VBA/basic.csv' }
-        ]
+        'TOEIC': [{ name: '動詞問題', file: 'TOEIC/verbs.csv' }, { name: '前置詞問題', file: 'TOEIC/prepositions.csv' }, { name: '副詞問題', file: 'TOEIC/adverbs.csv' }, { name: '形容詞問題', file: 'TOEIC/adjectives.csv' }],
+        'FE': [{ name: 'ネットワーク', file: 'FE/network.csv' }, { name: 'セキュリティ', file: 'FE/security.csv' }],
+        'AWS': [{ name: 'Compute/EC2', file: 'AWS/ec2.csv' }, { name: 'Storage/S3', file: 'AWS/s3.csv' }, { name: 'Security/IAM', file: 'AWS/iam.csv' }, { name: 'Database/RDS', file: 'AWS/rds.csv' }],
+        'VBA': [{ name: 'VBA 基礎', file: 'VBA/basic.csv' }]
     };
 
     function showSubGenre(category) {
@@ -171,7 +203,6 @@
     }
 
     function loadCSV(path) {
-        // パスの先頭にスラッシュを入れないことで相対パスを安定させます
         Papa.parse(`questions/${path}`, {
             download: true, header: true, skipEmptyLines: true,
             complete: function(results) {
@@ -182,7 +213,7 @@
     }
 
     function startNewSet() {
-        isRetryMode = false; wrongQuestions = [];
+        isRetryMode = false; wrongQuestions = []; setCorrectCount = 0;
         currentSet = pool.splice(0, 10);
         if (currentSet.length === 0) { goBack(); return; }
         currentIdx = 0;
@@ -193,7 +224,8 @@
         document.getElementById('sub-genre-screen').classList.add('hidden');
         document.getElementById('checkpoint-screen').classList.add('hidden');
         document.getElementById('quiz-screen').classList.remove('hidden');
-        document.getElementById('timer-ui').classList.remove('hidden');
+        if (isTimerEnabled) document.getElementById('timer-ui').classList.remove('hidden');
+        else document.getElementById('timer-ui').classList.add('hidden');
         sndBgm.volume = 0;
         sndBgm.play().catch(e => console.error(e));
         fadeBgm(MAX_BGM_VOL, 1500);
@@ -220,7 +252,7 @@
                 list.appendChild(b);
             }
         });
-        startTimer();
+        if (isTimerEnabled) startTimer();
     }
 
     function startTimer() {
@@ -236,8 +268,8 @@
         const num = document.getElementById('timer-num');
         bar.style.width = (timeLeft / 30 * 100) + "%";
         num.innerText = timeLeft;
-        if (timeLeft <= 5) { bar.classList.add('urgent'); num.parentElement.classList.add('urgent'); }
-        else { bar.classList.remove('urgent'); num.parentElement.classList.remove('urgent'); }
+        if (timeLeft <= 5) num.classList.add('urgent-text');
+        else num.classList.remove('urgent-text');
     }
 
     function checkAnswer(selected, q) {
@@ -245,14 +277,14 @@
         const isCorrect = (selected == q.answer);
         const quizScreen = document.getElementById('quiz-screen');
         const circle = document.getElementById('circle-anime');
+        
         if (isCorrect) {
-            sndCorrect.currentTime = 0;
-            sndCorrect.play().catch(e => {});
+            sndCorrect.currentTime = 0; sndCorrect.play().catch(e => {});
             circle.classList.add('run-anime');
             setTimeout(() => circle.classList.remove('run-anime'), 600);
+            if (!isRetryMode) setCorrectCount++; // 初回挑戦のみカウント
         } else {
-            sndWrong.currentTime = 0;
-            sndWrong.play().catch(e => {});
+            sndWrong.currentTime = 0; sndWrong.play().catch(e => {});
             quizScreen.classList.add('shake');
             if (!isRetryMode) wrongQuestions.push(q);
         }
@@ -272,11 +304,21 @@
 
     function showCheckpoint() {
         fadeBgm(MIN_BGM_VOL, 1000);
+        
+        // 初回モードの時のみ通算記録を保存
+        if (!isRetryMode) {
+            saveStats(currentSet.length, setCorrectCount);
+        }
+
         document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById('timer-ui').classList.add('hidden');
         document.getElementById('checkpoint-screen').classList.remove('hidden');
-        const score = currentSet.length - (isRetryMode ? 0 : wrongQuestions.length);
-        document.getElementById('checkpoint-stats').innerText = `${currentSet.length}問中 ${score}問正解！`;
+        
+        const setRate = Math.round((setCorrectCount / currentSet.length) * 100);
+        document.getElementById('checkpoint-stats').innerHTML = 
+            `<span style="font-size:14px; color:var(--gray)">このセットの結果</span><br>` +
+            `${currentSet.length}問中 ${setCorrectCount}問正解！ (${setRate}%)`;
+            
         document.getElementById('retry-section').className = (!isRetryMode && wrongQuestions.length > 0) ? '' : 'hidden';
     }
 
@@ -285,11 +327,7 @@
     }
 
     function continueNext() { startNewSet(); }
-    
-    function goBack() { 
-        clearInterval(timerInterval); 
-        location.reload(); 
-    }
+    function goBack() { clearInterval(timerInterval); location.reload(); }
 </script>
 </body>
 </html>
