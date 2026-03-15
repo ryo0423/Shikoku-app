@@ -124,16 +124,18 @@
     const sndBgm = new Audio();
     const sndCorrect = new Audio();
     const sndWrong = new Audio();
-    sndBgm.src = 'assets/sounds/BGM/Bubble_soda.mp3';
-    sndCorrect.src = 'assets/sounds/SE/correct.mp3';
-    sndWrong.src = 'assets/sounds/SE/noncorrect.mp3';
+
+    // --- 音源パスの修正 (GitHub Pages対応のため ./ を追加) ---
+    sndBgm.src = './assets/sounds/BGM/Bubble_soda.mp3';
+    sndCorrect.src = './assets/sounds/SE/correct.mp3';
+    sndWrong.src = './assets/sounds/SE/noncorrect.mp3';
+
     sndBgm.loop = true;
     const MAX_BGM_VOL = 0.3;
     const MIN_BGM_VOL = 0.05;
     let audioInitialized = false;
     let isTimerEnabled = true;
 
-    // 弱点データは { category: 'AWS', question: '...', ... } の形式で保存するように変更
     let stats = JSON.parse(localStorage.getItem('shikaku_stats')) || { totalAsked: 0, totalCorrect: 0 };
     let weaknessPool = JSON.parse(localStorage.getItem('shikaku_weakness')) || [];
 
@@ -213,7 +215,6 @@
         const list = document.getElementById('sub-menu-list');
         list.innerHTML = '';
 
-        // --- 分野別の弱点ボタンを追加 ---
         const categoryWeakness = weaknessPool.filter(q => q.category === category);
         if (categoryWeakness.length > 0) {
             const weakBtn = document.createElement('button');
@@ -235,7 +236,6 @@
     function startWeaknessMode(category) {
         isWeaknessMode = true;
         isRetryMode = false;
-        // その分野の問題だけを抽出
         const targetWeakness = weaknessPool.filter(q => q.category === category);
         currentSet = targetWeakness.sort(() => Math.random() - 0.5).slice(0, 10);
         currentIdx = 0;
