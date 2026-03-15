@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="apple-touch-icon" href="icon.png">
+    
+    <link rel="icon" href="icon_p5isekai.jpeg">
+    <link rel="apple-touch-icon" href="icon_p5isekai.jpeg">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>資格学習プロ | STYLISH EDITION</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         :root { 
-            --primary: #D31212; /* P5 Red */
-            --bg: #121212;      /* Deep Black (背景色を黒に固定) */
-            --card: #FFFFFF;    /* Pure White */
+            --primary: #D31212; 
+            --bg: #121212;      
+            --card: #FFFFFF;    
             --text: #000000; 
             --accent: #E1E1E1;
             --error: #D31212;
@@ -22,18 +25,16 @@
         body { 
             font-family: 'Arial Black', 'Helvetica Neue', sans-serif; 
             background-color: var(--bg); 
-            /* 背景にうっすらと赤のグラデーションを追加して奥行きを出す */
             background-image: radial-gradient(circle at 10% 20%, rgba(211, 18, 18, 0.15) 0%, transparent 40%);
             margin: 0; 
             display: flex; 
             justify-content: center; 
             overflow-x: hidden; 
-            color: white; /* ボディのデフォルト文字色を白に */
+            color: white;
         }
 
         .container { width: 100%; max-width: 500px; padding: 20px; position: relative; padding-bottom: 80px; }
 
-        /* ヘッダーエリア */
         .app-header {
             display: flex;
             justify-content: space-between;
@@ -66,7 +67,6 @@
         .settings-icon-bar::before { top: -7px; }
         .settings-icon-bar::after { top: 7px; }
 
-        /* カードデザイン */
         .card { 
             background: var(--card); color: var(--text); padding: 30px 20px;
             box-shadow: 10px 10px 0px var(--primary);
@@ -110,7 +110,6 @@
             box-shadow: 6px 6px 0 black; 
         }
 
-        /* 不正解画面のNEXTボタン（赤地に白文字） */
         .wrong .menu-btn.primary { 
             background: var(--primary); color: white; 
             box-shadow: 4px 4px 0 white;
@@ -137,7 +136,6 @@
         .timer-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: #000; border-top: 4px solid var(--primary); display: flex; align-items: center; justify-content: center; z-index: 100; box-shadow: 0 -5px 15px rgba(211,18,18,0.2); }
         .timer-bar { position: absolute; top: 0; left: 0; height: 100%; background: var(--primary); width: 100%; opacity: 0.5; }
 
-        /* 正解アニメーション復旧 */
         .correct-anime { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px; border: 25px solid var(--success); border-radius: 50%; pointer-events: none; z-index: 1000; opacity: 0; }
         .run-anime { animation: p5-circle 0.4s ease-out forwards; }
         @keyframes p5-circle { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; } }
@@ -170,7 +168,7 @@
 <div class="container">
     <header class="app-header">
         <button id="global-back-btn" class="back-btn" onclick="clickWrapper(() => goBack())">◀ BACK</button>
-        <div id="progress-indicator" class="progress-indicator hidden">SET: 1 / 10</div>
+        <div id="progress-indicator" class="progress-indicator hidden">Q: 1 / 10</div>
         <button id="global-settings-btn" class="settings-btn" onclick="openSettings()"><div class="settings-icon-bar"></div></button>
     </header>
 
@@ -189,7 +187,7 @@
         </div>
 
         <button class="menu-btn primary" onclick="handleStart('TOEIC')">TOEIC</button>
-        <button class="menu-btn primary" onclick="handleStart('FE')">FUNDAMENTAL ENG.</button>
+        <button class="menu-btn primary" onclick="handleStart('FE')">基本情報技術者</button>
         <button class="menu-btn primary" onclick="handleStart('AWS')">AWS SAA</button>
         <button class="menu-btn primary" onclick="handleStart('VBA')">EXCEL VBA</button>
         
@@ -207,9 +205,11 @@
         <div id="result-box" class="result hidden">
             <div id="ans-status" style="font-size:24px"></div>
             <div id="ans-desc" style="font-weight: 900; font-size: 15px; margin-top: 12px; line-height:1.6;"></div>
+            
             <div id="normal-action" class="hidden">
                 <button class="menu-btn primary" onclick="nextStep()">NEXT</button>
             </div>
+            
             <div id="weak-correct-action" class="hidden">
                 <p style="color:red; margin:15px 0; font-weight:900;">DELETE FROM WEAK BOX?</p>
                 <div class="weak-action-area">
@@ -224,10 +224,10 @@
         <h1>RESULT</h1>
         <div id="checkpoint-stats" style="font-size: 30px; font-weight: 900; margin: 40px 0; color:black; text-shadow: 2px 2px 0 var(--primary);"></div>
         <div id="retry-section" class="hidden">
-            <button class="menu-btn" style="background:#000" onclick="startRetry()">RETRY WRONG QUESTIONS</button>
+            <button class="menu-btn" style="background:#000" onclick="clickWrapper(() => startRetry())">RETRY WRONG QUESTIONS</button>
         </div>
         <button id="next-set-btn" class="menu-btn primary" onclick="continueNext()">NEXT 10 QUESTIONS</button>
-        <button class="menu-btn" style="background:none; color:black; border:2px solid black;" onclick="goBack()">BACK TO MENU</button>
+        <button class="menu-btn" style="background:none; color:black; border:2px solid black;" onclick="clickWrapper(() => goBack())">BACK TO MENU</button>
     </div>
 </div>
 
@@ -282,7 +282,6 @@
     }
     function updateSeVolume(val) { seVolume = parseFloat(val); }
 
-    // --- BGMパスを新しいものに更新 ---
     loadSound('bgm', './assets/sounds/BGM/persona5_style_music.mp3');
     loadSound('correct', './assets/sounds/SE/correct.mp3');
     loadSound('wrong', './assets/sounds/SE/noncorrect.mp3');
@@ -353,7 +352,29 @@
     function renderQuestion() { cancelAnimationFrame(timerInterval); const qScreen = document.getElementById('quiz-screen'); qScreen.classList.remove('shake'); document.getElementById('result-box').classList.add('hidden'); const q = currentSet[currentIdx]; document.getElementById('progress-indicator').innerText = `Q: ${currentIdx + 1} / ${currentSet.length}`; document.getElementById('q-text').innerText = q.question; const list = document.getElementById('options-list'); list.innerHTML = ''; [1,2,3,4].forEach(num => { if (q[`option${num}`]) { const b = document.createElement('button'); b.className = 'option-btn'; b.innerText = q[`option${num}`]; b.onclick = () => checkAnswer(num, q); list.appendChild(b); } }); if (isTimerEnabled) startSmoothTimer(); }
     function startSmoothTimer() { const duration = 30000; const startTimestamp = performance.now(); function update(now) { const elapsed = now - startTimestamp; const remaining = Math.max(0, duration - elapsed); timeLeft = remaining / 1000; updateTimerUI(); if (remaining > 0) { timerInterval = requestAnimationFrame(update); } else { checkAnswer(-1, currentSet[currentIdx]); } } timerInterval = requestAnimationFrame(update); }
     function updateTimerUI() { const percent = (timeLeft / 30) * 100; document.getElementById('timer-bar').style.width = percent + "%"; document.getElementById('timer-num').innerText = timeLeft.toFixed(1); }
-    function checkAnswer(selected, q) { cancelAnimationFrame(timerInterval); const isCorrect = (selected == q.answer); const circle = document.getElementById('circle-anime'); if (isCorrect) { playSE('correct'); circle.classList.add('run-anime'); setTimeout(() => circle.classList.remove('run-anime'), 500); if (!isRetryMode && !isWeaknessMode) setCorrectCount++; } else { playSE('wrong'); document.getElementById('quiz-screen').classList.add('shake'); if (!isRetryMode) { const exists = weaknessPool.some(item => item.question === q.question); if (!exists) { weaknessPool.push({ ...q, category: currentCategory }); localStorage.setItem('shikaku_weakness', JSON.stringify(weaknessPool)); updateMainStatsDisplay(); } wrongQuestions.push(q); } } const rb = document.getElementById('result-box'); rb.classList.remove('hidden'); rb.className = `result ${isCorrect ? 'correct' : 'wrong'}`; document.getElementById('ans-status').innerText = isCorrect ? "SUCCESS!!" : "FAILED..."; document.getElementById('ans-desc').innerText = "EXPLANATION: " + q.explanation; if (isWeaknessMode && isCorrect) { document.getElementById('normal-action').classList.add('hidden'); document.getElementById('weak-correct-action').classList.remove('hidden'); } else { document.getElementById('normal-action').classList.remove('hidden'); document.getElementById('weak-correct-action').classList.add('hidden'); } document.querySelectorAll('.option-btn').forEach(b => b.disabled = true); }
+    function checkAnswer(selected, q) { 
+        cancelAnimationFrame(timerInterval); 
+        const isCorrect = (selected == q.answer); 
+        const circle = document.getElementById('circle-anime'); 
+        if (isCorrect) { 
+            playSE('correct'); circle.classList.add('run-anime'); setTimeout(() => circle.classList.remove('run-anime'), 500); 
+            if (!isRetryMode && !isWeaknessMode) setCorrectCount++; 
+        } else { 
+            playSE('wrong'); document.getElementById('quiz-screen').classList.add('shake'); 
+            if (!isRetryMode) { 
+                const exists = weaknessPool.some(item => item.question === q.question); 
+                if (!exists) { weaknessPool.push({ ...q, category: currentCategory }); localStorage.setItem('shikaku_weakness', JSON.stringify(weaknessPool)); updateMainStatsDisplay(); } 
+                wrongQuestions.push(q); 
+            } 
+        } 
+        const rb = document.getElementById('result-box'); 
+        rb.classList.remove('hidden'); rb.className = `result ${isCorrect ? 'correct' : 'wrong'}`; 
+        document.getElementById('ans-status').innerText = isCorrect ? "SUCCESS!!" : "FAILED..."; 
+        document.getElementById('ans-desc').innerText = q.explanation; 
+        if (isWeaknessMode && isCorrect) { document.getElementById('normal-action').classList.add('hidden'); document.getElementById('weak-correct-action').classList.remove('hidden'); } 
+        else { document.getElementById('normal-action').classList.remove('hidden'); document.getElementById('weak-correct-action').classList.add('hidden'); } 
+        document.querySelectorAll('.option-btn').forEach(b => b.disabled = true); 
+    }
     function nextStep() { currentIdx++; if (currentIdx < currentSet.length) renderQuestion(); else showCheckpoint(); }
     function showCheckpoint() { if (!isRetryMode && !isWeaknessMode) { stats.totalAsked += currentSet.length; stats.totalCorrect += setCorrectCount; localStorage.setItem('shikaku_stats', JSON.stringify(stats)); updateMainStatsDisplay(); } document.getElementById('quiz-screen').classList.add('hidden'); document.getElementById('timer-ui').classList.add('hidden'); document.getElementById('progress-indicator').classList.add('hidden'); document.getElementById('global-settings-btn').style.display = 'none'; document.getElementById('checkpoint-screen').classList.remove('hidden'); const count = isWeaknessMode ? (currentSet.length - wrongQuestions.length) : setCorrectCount; document.getElementById('checkpoint-stats').innerHTML = `${count} / ${currentSet.length} CLEAR`; document.getElementById('retry-section').className = (!isRetryMode && wrongQuestions.length > 0) ? '' : 'hidden'; document.getElementById('next-set-btn').style.display = isWeaknessMode ? 'none' : 'block'; }
     function goBack() { cancelAnimationFrame(timerInterval); stopBGM(); location.reload(); }
