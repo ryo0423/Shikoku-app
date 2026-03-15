@@ -191,7 +191,16 @@
     const subGenres = {
         'TOEIC': [{ name: '動詞', file: 'TOEIC/verbs.csv' }, { name: '前置詞', file: 'TOEIC/prepositions.csv' }, { name: '副詞', file: 'TOEIC/adverbs.csv' }, { name: '形容詞', file: 'TOEIC/adjectives.csv' }],
         'FE': [{ name: 'ネットワーク', file: 'FE/network.csv' }, { name: 'セキュリティ', file: 'FE/security.csv' }],
-        'AWS': [{ name: 'EC2', file: 'AWS/ec2.csv' }, { name: 'S3', file: 'AWS/s3.csv' }, { name: 'IAM', file: 'AWS/iam.csv' }, { name: 'RDS', file: 'AWS/rds.csv' }],
+        'AWS': [
+            { name: 'Compute/EC2', file: 'AWS/ec2.csv' }, 
+            { name: 'Storage/S3', file: 'AWS/s3.csv' },
+            { name: 'Security/IAM', file: 'AWS/iam.csv' },
+            { name: 'Database/RDS', file: 'AWS/rds.csv' },
+            { name: 'Network/VPC', file: 'AWS/networking.csv' },
+            { name: 'Serverless/Integration', file: 'AWS/serverles.csv' },
+            { name: 'Management/Monitoring', file: 'AWS/monitoring.csv' },
+            { name: '総合演習/Final', file: 'AWS/final.csv' }
+        ],
         'VBA': [{ name: 'VBA 基礎', file: 'VBA/basic.csv' }]
     };
 
