@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <link rel="icon" href="icon_p5isekai.jpeg">
     <link rel="apple-touch-icon" href="icon_p5isekai.jpeg">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>資格学習プロ | STYLISH EDITION</title>
@@ -20,10 +18,11 @@
             --accent: #E1E1E1;
             --error: #D31212;
             --success: #28a745;
+            --gold: #FFCC00;
         }
 
         body { 
-            font-family: 'Arial Black', 'Helvetica Neue', sans-serif; 
+            font-family: 'Arial Black', 'Helvetica Neue', 'Hiragino Sans', sans-serif; 
             background-color: var(--bg); 
             background-image: radial-gradient(circle at 10% 20%, rgba(211, 18, 18, 0.15) 0%, transparent 40%);
             margin: 0; 
@@ -31,9 +30,22 @@
             justify-content: center; 
             overflow-x: hidden; 
             color: white;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        .container { width: 100%; max-width: 500px; padding: 20px; position: relative; padding-bottom: 80px; }
+        /* スマートフォンの300msタップ遅延を強制解除 */
+        button {
+            touch-action: manipulation;
+        }
+
+        .container { 
+            width: 100%; 
+            max-width: 500px; 
+            padding: 20px; 
+            position: relative; 
+            padding-bottom: 80px; 
+        }
 
         .app-header {
             display: flex;
@@ -44,64 +56,189 @@
         }
 
         .back-btn { 
-            background: white; color: black; border: 3px solid black; padding: 8px 18px;
-            font-weight: bold; transform: skew(-15deg); cursor: pointer; display: none;
+            background: white; 
+            color: black; 
+            border: 3px solid black; 
+            padding: 8px 18px;
+            font-weight: bold; 
+            transform: skew(-15deg); 
+            cursor: pointer; 
+            display: none;
             box-shadow: 4px 4px 0 var(--primary);
+            transition: 0.1s;
         }
-        .back-btn:hover { background: var(--primary); color: white; }
+
+        .back-btn:hover { 
+            background: var(--primary); 
+            color: white; 
+            transform: skew(-15deg) translate(-2px, -2px);
+        }
 
         .progress-indicator {
-            background: var(--primary); color: white; padding: 6px 15px;
-            font-size: 14px; transform: skew(10deg); font-weight: 900;
+            background: var(--primary); 
+            color: white; 
+            padding: 6px 15px;
+            font-size: 14px; 
+            transform: skew(10deg); 
+            font-weight: 900;
             box-shadow: 4px 4px 0 black;
         }
 
         .settings-btn { 
-            width: 40px; height: 40px; background: white; border: 3px solid black; 
-            display: none; align-items: center; justify-content: center; cursor: pointer;
-            transform: rotate(5deg); box-shadow: 4px 4px 0 var(--primary);
+            width: 40px; 
+            height: 40px; 
+            background: white; 
+            border: 3px solid black; 
+            display: none; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer;
+            transform: rotate(5deg); 
+            box-shadow: 4px 4px 0 var(--primary);
         }
+
         .settings-icon-bar, .settings-icon-bar::before, .settings-icon-bar::after {
-            content: ""; width: 20px; height: 3px; background: black; position: absolute;
+            content: ""; 
+            width: 20px; 
+            height: 4px; 
+            background: black; 
+            position: absolute;
         }
-        .settings-icon-bar::before { top: -7px; }
-        .settings-icon-bar::after { top: 7px; }
+        .settings-icon-bar::before { top: -8px; }
+        .settings-icon-bar::after { top: 8px; }
 
         .card { 
-            background: var(--card); color: var(--text); padding: 30px 20px;
+            background: var(--card); 
+            color: var(--text); 
+            padding: 30px 20px;
             box-shadow: 10px 10px 0px var(--primary);
-            position: relative; border: 4px solid black;
-            min-height: 400px;
+            position: relative; 
+            border: 4px solid black;
+            min-height: 420px;
         }
 
-        h1 { background: black; color: white; display: inline-block; padding: 5px 20px; transform: rotate(-2deg); font-size: 24px; font-weight: 900; margin-bottom: 20px; }
+        h1 { 
+            background: black; 
+            color: white; 
+            display: inline-block; 
+            padding: 5px 20px; 
+            transform: rotate(-2deg); 
+            font-size: 24px; 
+            font-weight: 900; 
+            margin-bottom: 20px; 
+        }
 
-        .stats-container { background: #000; padding: 15px; margin-bottom: 20px; display: flex; justify-content: space-around; transform: skew(-5deg); box-shadow: 4px 4px 0 var(--primary); }
-        .stats-item { color: white; text-align: center; font-size: 10px; font-weight: bold; letter-spacing: 1px; }
-        .stats-item b { font-size: 20px; color: var(--primary); display: block; margin-top: 5px; font-weight: 900;}
+        .stats-container { 
+            background: #000; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            display: flex; 
+            justify-content: space-around; 
+            transform: skew(-5deg); 
+            box-shadow: 4px 4px 0 var(--primary); 
+        }
+        .stats-item { 
+            color: white; 
+            text-align: center; 
+            font-size: 10px; 
+            font-weight: bold; 
+            letter-spacing: 1px; 
+        }
+        .stats-item b { 
+            font-size: 20px; 
+            color: var(--primary); 
+            display: block; 
+            margin-top: 5px; 
+            font-weight: 900;
+        }
 
-        .mode-toggle { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
+        .mode-toggle { 
+            display: flex; 
+            justify-content: center; 
+            gap: 10px; 
+            margin-bottom: 25px; 
+        }
         .toggle-btn { 
-            background: black; color: white; border: 2px solid black; padding: 10px 20px;
-            font-weight: 900; cursor: pointer; transform: skew(-10deg); transition: 0.2s;
+            background: black; 
+            color: white; 
+            border: 2px solid black; 
+            padding: 10px 20px;
+            font-weight: 900; 
+            cursor: pointer; 
+            transform: skew(-10deg); 
+            transition: 0.2s;
         }
         .toggle-btn.active { 
-            background: var(--primary); border-color: var(--primary); color: white;
+            background: var(--primary); 
+            border-color: var(--primary); 
+            color: white;
             box-shadow: 4px 4px 0 black;
         }
 
         #q-text { 
-            font-size: 20px; text-align: left; margin: 20px 0; font-weight: 900; 
-            line-height: 1.4; border-left: 8px solid var(--primary); padding-left: 15px;
+            font-size: 18px; 
+            text-align: left; 
+            margin: 20px 0; 
+            font-weight: 900; 
+            line-height: 1.5; 
+            border-left: 8px solid var(--primary); 
+            padding-left: 15px;
         }
 
         .option-btn, .menu-btn { 
-            width: 100%; border: 3px solid black;
-            text-align: left; font-size: 16px; font-weight: 900;
-            cursor: pointer; transition: 0.15s;
+            width: 100%; 
+            border: 3px solid black;
+            text-align: left; 
+            font-size: 16px; 
+            font-weight: 900;
+            cursor: pointer; 
+            transition: 0.15s;
         }
-        .option-btn { padding: 18px; margin-top: 12px; background: white; color: black; }
-        .menu-btn { padding: 20px; margin-bottom: 15px; border: none; background: black; color: white; font-size: 18px; transform: skew(-10deg); text-align: center; }
+        
+        .option-btn { 
+            padding: 18px; 
+            margin-top: 12px; 
+            background: white; 
+            color: black; 
+        }
+        .option-btn.selected { 
+            background: #ddd !important; 
+            border-left: 10px solid black; 
+        }
+        .option-btn.correct-highlight { 
+            border-color: var(--success) !important; 
+            border-width: 6px !important; 
+            box-shadow: 0 0 10px var(--success); 
+        }
+
+        .menu-btn { 
+            padding: 20px; 
+            margin-bottom: 15px; 
+            background: black; 
+            color: white; 
+            font-size: 18px; 
+            transform: skew(-10deg); 
+            text-align: center; 
+        }
+        
+        .menu-btn.primary { 
+            background: var(--primary) !important; 
+            color: white !important; 
+            box-shadow: 4px 4px 0 black; 
+            border: none; 
+        }
+        .menu-btn.warning { 
+            background: var(--gold) !important; 
+            color: black !important; 
+            box-shadow: 4px 4px 0 black; 
+            border: none; 
+        }
+        .menu-btn.outline { 
+            background: none !important; 
+            border: 3px solid black !important; 
+            color: black !important; 
+            font-size: 16px; 
+        }
 
         .option-btn:hover, .menu-btn:hover { 
             background: var(--primary) !important; 
@@ -109,41 +246,142 @@
             transform: translate(-3px, -3px) skew(-10deg); 
             box-shadow: 6px 6px 0 black; 
         }
-
-        .wrong .menu-btn.primary { 
-            background: var(--primary); color: white; 
-            box-shadow: 4px 4px 0 white;
-            margin-top: 20px;
+        .option-btn:hover {
+            transform: translate(-3px, -3px);
         }
-        .wrong .menu-btn.primary:hover { background: white; color: black; box-shadow: 6px 6px 0 var(--primary); }
 
-        .result { margin-top: 25px; padding: 20px; border: 4px solid black; font-weight: 900; transform: rotate(1deg); }
-        .correct { background: white; color: var(--success); border-color: var(--success); }
-        .wrong { background: black; color: white; border-color: var(--primary); }
+        .result { 
+            margin-top: 25px; 
+            padding: 20px; 
+            border: 4px solid black; 
+            font-weight: 900; 
+        }
+        .correct { 
+            border-color: var(--success); 
+            color: var(--success); 
+        }
+        .wrong { 
+            background: black; 
+            color: white; 
+            border-color: var(--primary); 
+        }
+        .wrong .menu-btn.primary { 
+            box-shadow: 4px 4px 0 white; 
+        }
 
-        .weak-action-area { display: flex; gap: 10px; margin-top: 15px; }
-        .wrong .weak-action-area .menu-btn { border-color: white; color: white; }
-        .wrong .weak-action-area .menu-btn.outline:hover { background: white; color: black; }
+        .weak-action-area { 
+            display: flex; 
+            gap: 10px; 
+            margin-top: 15px; 
+        }
 
-        #settings-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(211, 18, 18, 0.8); display: none; justify-content: center; align-items: center; z-index: 200; }
-        .modal-content { background: black; padding: 30px; border: 5px solid white; width: 85%; max-width: 320px; text-align: center; color: white; transform: rotate(-2deg); box-shadow: 10px 10px 0 black; }
+        #settings-modal { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.85); 
+            display: none; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 500; 
+        }
+        .modal-content { 
+            background: black; 
+            padding: 30px; 
+            border: 5px solid white; 
+            width: 85%; 
+            max-width: 320px; 
+            text-align: center; 
+            color: white; 
+            transform: rotate(-2deg); 
+            box-shadow: 10px 10px 0 black; 
+        }
 
         .volume-control { margin: 25px 0; text-align: left; }
         .volume-label { font-size: 14px; font-weight: 900; margin-bottom: 10px; display: block; letter-spacing: 2px; }
-        .slider { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; background: #444; outline: none; border: 2px solid white; }
-        .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: white; cursor: pointer; border: 3px solid var(--primary); border-radius: 50%; }
-
-        .timer-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: #000; border-top: 4px solid var(--primary); display: flex; align-items: center; justify-content: center; z-index: 100; box-shadow: 0 -5px 15px rgba(211,18,18,0.2); }
-        .timer-bar { position: absolute; top: 0; left: 0; height: 100%; background: var(--primary); width: 100%; opacity: 0.5; }
-
-        .correct-anime { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px; border: 25px solid var(--success); border-radius: 50%; pointer-events: none; z-index: 1000; opacity: 0; }
-        .run-anime { animation: p5-circle 0.4s ease-out forwards; }
-        @keyframes p5-circle { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; } }
-
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px) rotate(-1deg); } 75% { transform: translateX(10px) rotate(1deg); } }
-        .shake { animation: shake 0.15s ease-in-out 0s 2; border: 6px solid var(--primary); }
         
-        .hidden { display: none; }
+        .slider { 
+            appearance: none; 
+            -webkit-appearance: none; 
+            width: 100%; 
+            height: 8px; 
+            background: #444; 
+            outline: none; 
+            border: 2px solid white; 
+        }
+        .slider::-webkit-slider-thumb { 
+            appearance: none; 
+            -webkit-appearance: none; 
+            width: 20px; 
+            height: 20px; 
+            background: white; 
+            cursor: pointer; 
+            border: 3px solid var(--primary); 
+            border-radius: 50%; 
+        }
+
+        .timer-container { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 60px; 
+            background: #000; 
+            border-top: 4px solid var(--primary); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 100; 
+            box-shadow: 0 -5px 15px rgba(211,18,18,0.2); 
+        }
+        .timer-bar { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            height: 100%; 
+            background: var(--primary); 
+            width: 100%; 
+            opacity: 0.5; 
+        }
+
+        .correct-anime { 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 250px; 
+            height: 250px; 
+            border: 25px solid var(--success); 
+            border-radius: 50%; 
+            pointer-events: none; 
+            z-index: 1000; 
+            opacity: 0; 
+        }
+        .run-anime { 
+            animation: p5-circle 0.4s ease-out forwards; 
+        }
+        @keyframes p5-circle { 
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 
+            50% { opacity: 1; } 
+            100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; } 
+        }
+
+        .shake { 
+            animation: shake 0.2s ease-in-out 0s 2; 
+            border: 6px solid var(--primary); 
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+        @keyframes shake { 
+            0%, 100% { transform: translateX(0); } 
+            25% { transform: translateX(-5px); } 
+            75% { transform: translateX(5px); } 
+        }
+        
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -161,15 +399,15 @@
             <span class="volume-label">SE VOLUME</span>
             <input type="range" min="0" max="1" step="0.01" value="0.5" class="slider" id="se-slider" oninput="updateSeVolume(this.value)">
         </div>
-        <button class="menu-btn primary" style="margin-top:20px" onclick="closeSettings()">RESUME</button>
+        <button class="menu-btn primary" style="margin-top:20px" onclick="clickWrapper(() => closeSettings())">RESUME</button>
     </div>
 </div>
 
 <div class="container">
     <header class="app-header">
-        <button id="global-back-btn" class="back-btn" onclick="clickWrapper(() => goBack())">◀ BACK</button>
+        <button id="global-back-btn" class="back-btn" onclick="clickWrapper(() => handleBack())">◀ BACK</button>
         <div id="progress-indicator" class="progress-indicator hidden">Q: 1 / 10</div>
-        <button id="global-settings-btn" class="settings-btn" onclick="openSettings()"><div class="settings-icon-bar"></div></button>
+        <button id="global-settings-btn" class="settings-btn" onclick="clickWrapper(() => openSettings())"><div class="settings-icon-bar"></div></button>
     </header>
 
     <div id="genre-screen" class="card">
@@ -186,10 +424,8 @@
             <button id="mode-off" class="toggle-btn" onclick="clickWrapper(() => setTimerMode(false))">TIMER OFF</button>
         </div>
 
-        <button class="menu-btn primary" onclick="handleStart('TOEIC')">TOEIC</button>
-        <button class="menu-btn primary" onclick="handleStart('FE')">基本情報技術者</button>
-        <button class="menu-btn primary" onclick="handleStart('AWS')">AWS SAA</button>
-        <button class="menu-btn primary" onclick="handleStart('VBA')">EXCEL VBA</button>
+        <div id="main-qual-list">
+            </div>
         
         <button onclick="clickWrapper(() => resetStats())" style="margin-top:25px; background:none; border:none; color:black; font-size:12px; text-decoration:underline; width:100%; cursor:pointer; font-weight:bold;">ERASE ALL DATA</button>
     </div>
@@ -199,109 +435,247 @@
         <div id="sub-menu-list" style="margin-top:25px"></div>
     </div>
 
+    <div id="exam-menu-screen" class="card hidden">
+        <h1>AWS SAA EXAM</h1>
+        <div id="exam-list-area" style="margin-top:25px"></div>
+    </div>
+
     <div id="quiz-screen" class="card hidden">
         <div id="q-text"></div>
         <div id="options-list"></div>
+        
+        <button id="multi-submit-btn" class="menu-btn primary hidden" onclick="clickWrapper(() => submitMultiAnswer())">SUBMIT ANSWERS</button>
+
         <div id="result-box" class="result hidden">
             <div id="ans-status" style="font-size:24px"></div>
             <div id="ans-desc" style="font-weight: 900; font-size: 15px; margin-top: 12px; line-height:1.6;"></div>
             
             <div id="normal-action" class="hidden">
-                <button class="menu-btn primary" onclick="nextStep()">NEXT</button>
+                <button class="menu-btn primary" style="margin-top: 20px;" onclick="clickWrapper(() => nextStep())">NEXT</button>
             </div>
             
             <div id="weak-correct-action" class="hidden">
-                <p style="color:red; margin:15px 0; font-weight:900;">DELETE FROM WEAK BOX?</p>
+                <p id="weak-action-msg" style="color:red; margin:15px 0; font-weight:900;">DELETE FROM WEAK BOX?</p>
                 <div class="weak-action-area">
-                    <button class="menu-btn outline" style="flex:1" onclick="stayInWeakness()">KEEP</button>
-                    <button class="menu-btn primary" style="flex:1" onclick="resolveWeakness()">ERASE</button>
+                    <button class="menu-btn outline" style="flex:1" onclick="clickWrapper(() => stayInWeakness())">KEEP</button>
+                    <button class="menu-btn primary" style="flex:1" onclick="clickWrapper(() => resolveWeakness())">ERASE/ADD</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="checkpoint-screen" class="card hidden">
-        <h1>RESULT</h1>
+        <h1 id="checkpoint-title">RESULT</h1>
         <div id="checkpoint-stats" style="font-size: 30px; font-weight: 900; margin: 40px 0; color:black; text-shadow: 2px 2px 0 var(--primary);"></div>
         <div id="retry-section" class="hidden">
-            <button class="menu-btn" style="background:#000" onclick="clickWrapper(() => startRetry())">RETRY WRONG QUESTIONS</button>
+            <button class="menu-btn primary" onclick="clickWrapper(() => startRetry())">RETRY WRONG QUESTIONS</button>
         </div>
-        <button id="next-set-btn" class="menu-btn primary" onclick="continueNext()">NEXT 10 QUESTIONS</button>
-        <button class="menu-btn" style="background:none; color:black; border:2px solid black;" onclick="clickWrapper(() => goBack())">BACK TO MENU</button>
+        <button id="next-set-btn" class="menu-btn primary" onclick="clickWrapper(() => continueNext())">NEXT 10 QUESTIONS</button>
+        <button class="menu-btn" onclick="clickWrapper(() => handleBack())" style="background:none; color:black; border:2px solid black;">BACK TO MENU</button>
     </div>
 </div>
 
 <div id="timer-ui" class="timer-container hidden">
     <div id="timer-bar" class="timer-bar"></div>
-    <div style="position:relative; font-size:28px; font-weight:900;">TIME: <span id="timer-num">30.0</span></div>
+    <div style="position:relative; font-size:28px; font-weight:900;"><span id="timer-label">TIME:</span> <span id="timer-num">30.0</span></div>
 </div>
 
 <script>
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // ==========================================
+    // 音声管理 (事前ロード ＆ 遅延対策)
+    // ==========================================
+    let audioCtx = null;
     const soundBuffers = {};
-    let bgmVolume = 0.08, seVolume = 0.5, bgmSource = null, bgmGainNode = null, audioInitialized = false;
+    let bgmVolume = 0.08;
+    let seVolume = 0.5;
+    let bgmSource = null;
+    let bgmGainNode = null;
+    let audioInitialized = false;
+
+    window.addEventListener('DOMContentLoaded', () => {
+        initAudio();
+    });
+
+    function initAudio() {
+        if (audioInitialized) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+        
+        const soundsToLoad = ['bgm', 'correct', 'wrong', 'select'];
+        soundsToLoad.forEach(name => {
+            let url = '';
+            if (name === 'bgm') url = './assets/sounds/BGM/persona5_style_music.mp3';
+            else if (name === 'wrong') url = './assets/sounds/SE/noncorrect.mp3';
+            else url = `./assets/sounds/SE/${name}.mp3`;
+            loadSound(name, url);
+        });
+        audioInitialized = true;
+    }
 
     async function loadSound(name, url) {
         try {
             const response = await fetch(url);
             const arrayBuffer = await response.arrayBuffer();
-            soundBuffers[name] = await audioCtx.decodeAudioData(arrayBuffer);
-        } catch (e) { console.error("Load failed:", name); }
+            const decodedData = await audioCtx.decodeAudioData(arrayBuffer);
+            soundBuffers[name] = decodedData;
+        } catch (e) {
+            console.error("Audio load failed:", name, e);
+        }
     }
 
+    const unlockAudio = () => {
+        if (!audioInitialized) initAudio();
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    };
+    document.addEventListener('click', unlockAudio, { once: true });
+    document.addEventListener('touchstart', unlockAudio, { once: true });
+
     function playSE(name) {
-        if (!soundBuffers[name]) return;
+        if (!audioCtx || !soundBuffers[name]) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
         const source = audioCtx.createBufferSource();
         source.buffer = soundBuffers[name];
+        
         const gainNode = audioCtx.createGain();
         gainNode.gain.value = seVolume;
+        
         source.connect(gainNode).connect(audioCtx.destination);
         source.start(0);
     }
 
-    function clickWrapper(callback) { playSE('select'); if (callback) callback(); }
+    function clickWrapper(callback) {
+        if (!audioInitialized) initAudio();
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        playSE('select');
+        
+        if (callback) {
+            setTimeout(callback, 10);
+        }
+    }
 
     function startBGM() {
         if (bgmVolume === 0 || !soundBuffers['bgm']) return;
         if (bgmSource) return;
+        
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        
         bgmSource = audioCtx.createBufferSource();
         bgmSource.buffer = soundBuffers['bgm'];
         bgmSource.loop = true;
+        
         bgmGainNode = audioCtx.createGain();
         bgmGainNode.gain.value = bgmVolume;
+        
         bgmSource.connect(bgmGainNode).connect(audioCtx.destination);
         bgmSource.start(0);
     }
 
-    function stopBGM() { if (bgmSource) { try { bgmSource.stop(); } catch(e){} bgmSource = null; bgmGainNode = null; } }
+    function stopBGM() {
+        if (bgmSource) {
+            try { bgmSource.stop(); } catch(e) {}
+            bgmSource = null;
+            bgmGainNode = null;
+        }
+    }
+
     function updateBgmVolume(val) {
         bgmVolume = parseFloat(val);
         if (bgmGainNode) bgmGainNode.gain.value = bgmVolume;
-        if (bgmVolume > 0 && !bgmSource && !document.getElementById('quiz-screen').classList.contains('hidden')) startBGM();
-        else if (bgmVolume === 0) stopBGM();
+        
+        if (bgmVolume > 0 && !bgmSource && !document.getElementById('quiz-screen').classList.contains('hidden')) {
+            startBGM();
+        } else if (bgmVolume === 0) {
+            stopBGM();
+        }
     }
-    function updateSeVolume(val) { seVolume = parseFloat(val); }
 
-    loadSound('bgm', './assets/sounds/BGM/persona5_style_music.mp3');
-    loadSound('correct', './assets/sounds/SE/correct.mp3');
-    loadSound('wrong', './assets/sounds/SE/noncorrect.mp3');
-    loadSound('select', './assets/sounds/SE/select.mp3');
+    function updateSeVolume(val) {
+        seVolume = parseFloat(val);
+    }
 
-    function openSettings() { playSE('select'); document.getElementById('settings-modal').style.display = 'flex'; }
-    function closeSettings() { playSE('select'); document.getElementById('settings-modal').style.display = 'none'; }
+    function openSettings() { 
+        document.getElementById('settings-modal').style.display = 'flex'; 
+    }
+    
+    function closeSettings() { 
+        document.getElementById('settings-modal').style.display = 'none'; 
+    }
 
+    // ==========================================
+    // 状態管理・画面履歴
+    // ==========================================
     let stats = JSON.parse(localStorage.getItem('shikaku_stats')) || { totalAsked: 0, totalCorrect: 0 };
     let weaknessPool = JSON.parse(localStorage.getItem('shikaku_weakness')) || [];
-    let isTimerEnabled = true, pool = [], currentSet = [], wrongQuestions = [], currentIdx = 0, timerInterval, timeLeft = 30;
-    let isRetryMode = false, isWeaknessMode = false, currentCategory = '', setCorrectCount = 0;
+    let examWeaknessPool = JSON.parse(localStorage.getItem('shikaku_exam_weakness')) || [];
+
+    let isTimerEnabled = true;
+    let pool = [];
+    let currentSet = [];
+    let wrongQuestions = [];
+    let currentIdx = 0;
+    let timerInterval;
+    let timeLeft = 30;
+    let setCorrectCount = 0;
+    let currentCategory = '';
+    
+    let isRetryMode = false;
+    let isWeaknessMode = false;
+    let isExamWeaknessMode = false;
+    
+    let isExamMode = false;
+    let examRemainingTime = 130 * 60;
+    let examCurrentScore = 0;
+    let multiSelected = [];
+    let currentExamFile = '';
+
+    let currentScreen = 'genre-screen';
+
+    function navigateTo(targetId) {
+        currentScreen = targetId;
+        const screens = ['genre-screen', 'sub-genre-screen', 'exam-menu-screen', 'quiz-screen', 'checkpoint-screen'];
+        screens.forEach(id => {
+            document.getElementById(id).classList.add('hidden');
+        });
+        document.getElementById(targetId).classList.remove('hidden');
+        
+        document.getElementById('global-back-btn').style.display = (targetId === 'genre-screen') ? 'none' : 'block';
+    }
+
+    function handleBack() {
+        cancelAnimationFrame(timerInterval); 
+        stopBGM();
+        
+        document.getElementById('timer-ui').classList.add('hidden');
+        document.getElementById('progress-indicator').classList.add('hidden');
+        document.getElementById('global-settings-btn').style.display = 'none';
+
+        if (isExamMode && currentScreen === 'quiz-screen') {
+            saveExamState();
+        }
+
+        if (currentScreen === 'sub-genre-screen') {
+            navigateTo('genre-screen');
+            updateMainStatsDisplay();
+        } else if (currentScreen === 'exam-menu-screen') {
+            showSubGenre();
+        } else if (currentScreen === 'quiz-screen' || currentScreen === 'checkpoint-screen') {
+            if (isExamMode) {
+                showExamMenu();
+            } else {
+                showSubGenre();
+            }
+        }
+    }
 
     function updateMainStatsDisplay() {
         document.getElementById('total-count').innerText = stats.totalAsked;
         const rate = stats.totalAsked === 0 ? 0 : Math.round((stats.totalCorrect / stats.totalAsked) * 100);
         document.getElementById('total-rate').innerText = rate + "%";
-        document.getElementById('weak-total-count').innerText = weaknessPool.length;
+        document.getElementById('weak-total-count').innerText = weaknessPool.length + examWeaknessPool.length;
     }
-    updateMainStatsDisplay();
 
     function setTimerMode(enabled) {
         isTimerEnabled = enabled;
@@ -309,81 +683,529 @@
         document.getElementById('mode-off').classList.toggle('active', !enabled);
     }
 
-    function handleStart(category) {
-        if (!audioInitialized) { audioCtx.resume(); audioInitialized = true; }
-        currentCategory = category;
-        clickWrapper(() => {
-            document.getElementById('global-back-btn').style.display = 'block';
-            showSubGenre(category);
-        });
-    }
-
+    // ==========================================
+    // データ定義
+    // ==========================================
     const subGenres = {
-        'TOEIC': [{ name: '動詞', file: 'TOEIC/verbs.csv' }, { name: '前置詞', file: 'TOEIC/prepositions.csv' }, { name: '副詞', file: 'TOEIC/adverbs.csv' }, { name: '形容詞', file: 'TOEIC/adjectives.csv' }],
-        'FE': [{ name: 'ネットワーク', file: 'FE/network.csv' }, { name: 'セキュリティ', file: 'FE/security.csv' }],
-        'AWS': [{ name: 'Compute/EC2', file: 'AWS/ec2.csv' }, { name: 'Storage/S3', file: 'AWS/s3.csv' }, { name: 'Security/IAM', file: 'AWS/iam.csv' }, { name: 'Database/RDS', file: 'AWS/rds.csv' }, { name: 'Network/VPC', file: 'AWS/networking.csv' }, { name: 'Serverless/Integration', file: 'AWS/serverles.csv' }, { name: 'Management/Monitoring', file: 'AWS/monitoring.csv' }, { name: '総合演習/Final', file: 'AWS/final.csv' }],
-        'VBA': [{ name: 'VBA 基礎', file: 'VBA/basic.csv' }]
+        'TOEIC': [
+            { name: '動詞', file: 'TOEIC/verbs.csv' }, 
+            { name: '前置詞', file: 'TOEIC/prepositions.csv' }, 
+            { name: '副詞', file: 'TOEIC/adverbs.csv' }, 
+            { name: '形容詞', file: 'TOEIC/adjectives.csv' }
+        ],
+        'FE': [
+            { name: 'ネットワーク', file: 'FE/network.csv' }, 
+            { name: 'セキュリティ', file: 'FE/security.csv' }
+        ],
+        'AWS': [
+            { name: '🏆 模擬試験 (AWS Exam)', isExamContainer: true },
+            { name: 'Compute / EC2', file: 'AWS/ec2.csv' }, 
+            { name: 'Storage / S3', file: 'AWS/s3.csv' }, 
+            { name: 'Security / IAM', file: 'AWS/iam.csv' }, 
+            { name: 'Database / RDS', file: 'AWS/rds.csv' }, 
+            { name: 'Network / VPC', file: 'AWS/networking.csv' }, 
+            { name: 'Serverless / Integration', file: 'AWS/serverles.csv' }, 
+            { name: 'Management / Monitoring', file: 'AWS/monitoring.csv' }, 
+            { name: '総合演習 / Final Quiz', file: 'AWS/final.csv' }
+        ],
+        'VBA': [
+            { name: 'VBA 基礎', file: 'VBA/basic.csv' }
+        ]
     };
 
-    function showSubGenre(category) {
-        document.getElementById('genre-screen').classList.add('hidden');
-        document.getElementById('sub-genre-screen').classList.remove('hidden');
-        document.getElementById('sub-title').innerText = category;
+    const examList = [
+        { name: 'SAA 模試 第1回', file: 'exam/exam1.csv' },
+        { name: 'SAA 模試 第2回', file: 'exam/exam2.csv' },
+        { name: 'SAA 模試 第3回', file: 'exam/exam3.csv' }
+    ];
+
+    // ==========================================
+    // メニュー表示系
+    // ==========================================
+    function initializeMainMenu() {
+        const qList = document.getElementById('main-qual-list');
+        const keys = ['TOEIC', 'FE', 'AWS', 'VBA'];
+        keys.forEach(k => {
+            const btn = document.createElement('button');
+            btn.className = 'menu-btn';
+            btn.innerText = k === 'FE' ? '基本情報技術者' : (k === 'AWS' ? 'AWS SAA' : k);
+            btn.onclick = () => clickWrapper(() => handleStart(k));
+            qList.appendChild(btn);
+        });
+        updateMainStatsDisplay();
+    }
+
+    function handleStart(category) {
+        currentCategory = category;
+        showSubGenre();
+    }
+
+    function showSubGenre() {
+        navigateTo('sub-genre-screen');
+        document.getElementById('sub-title').innerText = currentCategory;
+        
         const list = document.getElementById('sub-menu-list');
         list.innerHTML = '';
-        const categoryWeakness = weaknessPool.filter(q => q.category === category);
+        
+        const categoryWeakness = weaknessPool.filter(q => q.category === currentCategory);
         if (categoryWeakness.length > 0) {
-            const weakBtn = document.createElement('button');
-            weakBtn.className = 'menu-btn warning';
-            weakBtn.innerText = `RECOVER WEAKNESS (${categoryWeakness.length})`;
-            weakBtn.onclick = () => clickWrapper(() => startWeaknessMode(category));
-            list.appendChild(weakBtn);
-        }
-        subGenres[category].forEach(item => {
             const btn = document.createElement('button');
-            btn.className = 'menu-btn primary'; btn.innerText = item.name; 
-            btn.onclick = () => clickWrapper(() => loadCSV(item.file)); list.appendChild(btn);
+            btn.className = 'menu-btn warning';
+            btn.innerText = `RECOVER WEAKNESS (${categoryWeakness.length})`;
+            btn.onclick = () => clickWrapper(() => startWeaknessMode(false));
+            list.appendChild(btn);
+        }
+
+        if (currentCategory === 'AWS' && examWeaknessPool.length > 0) {
+            const btn = document.createElement('button');
+            btn.className = 'menu-btn warning';
+            btn.style.background = "#FFCC00"; 
+            btn.style.color = "black";
+            btn.innerText = `EXAM WEAKNESS (${examWeaknessPool.length})`;
+            btn.onclick = () => clickWrapper(() => startWeaknessMode(true));
+            list.appendChild(btn);
+        }
+
+        subGenres[currentCategory].forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'menu-btn'; 
+            btn.innerText = item.name; 
+            btn.onclick = () => clickWrapper(() => {
+                if(item.isExamContainer) {
+                    showExamMenu();
+                } else {
+                    loadCSV(item.file);
+                }
+            });
+            list.appendChild(btn);
         });
     }
 
-    function loadCSV(path) { Papa.parse(`questions/${path}`, { download: true, header: true, skipEmptyLines: true, complete: results => { pool = results.data.sort(() => Math.random() - 0.5); startNewSet(); } }); }
-    function startNewSet() { isRetryMode = false; isWeaknessMode = false; wrongQuestions = []; setCorrectCount = 0; currentSet = pool.splice(0, 10); if (currentSet.length === 0) { goBack(); return; } currentIdx = 0; showQuiz(); }
-    function showQuiz() { document.getElementById('sub-genre-screen').classList.add('hidden'); document.getElementById('checkpoint-screen').classList.add('hidden'); document.getElementById('quiz-screen').classList.remove('hidden'); document.getElementById('progress-indicator').classList.remove('hidden'); document.getElementById('global-settings-btn').style.display = 'flex'; if (isTimerEnabled) document.getElementById('timer-ui').classList.remove('hidden'); startBGM(); renderQuestion(); }
-    function renderQuestion() { cancelAnimationFrame(timerInterval); const qScreen = document.getElementById('quiz-screen'); qScreen.classList.remove('shake'); document.getElementById('result-box').classList.add('hidden'); const q = currentSet[currentIdx]; document.getElementById('progress-indicator').innerText = `Q: ${currentIdx + 1} / ${currentSet.length}`; document.getElementById('q-text').innerText = q.question; const list = document.getElementById('options-list'); list.innerHTML = ''; [1,2,3,4].forEach(num => { if (q[`option${num}`]) { const b = document.createElement('button'); b.className = 'option-btn'; b.innerText = q[`option${num}`]; b.onclick = () => checkAnswer(num, q); list.appendChild(b); } }); if (isTimerEnabled) startSmoothTimer(); }
-    function startSmoothTimer() { const duration = 30000; const startTimestamp = performance.now(); function update(now) { const elapsed = now - startTimestamp; const remaining = Math.max(0, duration - elapsed); timeLeft = remaining / 1000; updateTimerUI(); if (remaining > 0) { timerInterval = requestAnimationFrame(update); } else { checkAnswer(-1, currentSet[currentIdx]); } } timerInterval = requestAnimationFrame(update); }
-    function updateTimerUI() { const percent = (timeLeft / 30) * 100; document.getElementById('timer-bar').style.width = percent + "%"; document.getElementById('timer-num').innerText = timeLeft.toFixed(1); }
-    function checkAnswer(selected, q) { 
-        cancelAnimationFrame(timerInterval); 
-        const isCorrect = (selected == q.answer); 
-        const circle = document.getElementById('circle-anime'); 
-        if (isCorrect) { 
-            playSE('correct'); circle.classList.add('run-anime'); setTimeout(() => circle.classList.remove('run-anime'), 500); 
-            if (!isRetryMode && !isWeaknessMode) setCorrectCount++; 
-        } else { 
-            playSE('wrong'); document.getElementById('quiz-screen').classList.add('shake'); 
-            if (!isRetryMode) { 
-                const exists = weaknessPool.some(item => item.question === q.question); 
-                if (!exists) { weaknessPool.push({ ...q, category: currentCategory }); localStorage.setItem('shikaku_weakness', JSON.stringify(weaknessPool)); updateMainStatsDisplay(); } 
-                wrongQuestions.push(q); 
-            } 
-        } 
-        const rb = document.getElementById('result-box'); 
-        rb.classList.remove('hidden'); rb.className = `result ${isCorrect ? 'correct' : 'wrong'}`; 
-        document.getElementById('ans-status').innerText = isCorrect ? "SUCCESS!!" : "FAILED..."; 
-        document.getElementById('ans-desc').innerText = q.explanation; 
-        if (isWeaknessMode && isCorrect) { document.getElementById('normal-action').classList.add('hidden'); document.getElementById('weak-correct-action').classList.remove('hidden'); } 
-        else { document.getElementById('normal-action').classList.remove('hidden'); document.getElementById('weak-correct-action').classList.add('hidden'); } 
-        document.querySelectorAll('.option-btn').forEach(b => b.disabled = true); 
+    function showExamMenu() {
+        navigateTo('exam-menu-screen');
+        const list = document.getElementById('exam-list-area');
+        list.innerHTML = '';
+        
+        examList.forEach(ex => {
+            const btn = document.createElement('button');
+            btn.className = 'menu-btn';
+            
+            const savedState = localStorage.getItem(`exam_state_${ex.file}`);
+            if(savedState) {
+                const s = JSON.parse(savedState);
+                const totalQ = s.pool ? s.pool.length : 65;
+                btn.innerHTML = `${ex.name}<br><span style="font-size: 14px; color: var(--gold);">▶ 再開: Q${s.currentIdx + 1} / ${totalQ}</span>`;
+                btn.style.border = "3px solid var(--gold)";
+            } else {
+                btn.innerHTML = `${ex.name}<br><span style="font-size: 14px;">▶ はじめから</span>`;
+                btn.style.border = "3px solid black";
+            }
+
+            btn.onclick = () => clickWrapper(() => startExam(ex.file));
+            list.appendChild(btn);
+        });
     }
-    function nextStep() { currentIdx++; if (currentIdx < currentSet.length) renderQuestion(); else showCheckpoint(); }
-    function showCheckpoint() { if (!isRetryMode && !isWeaknessMode) { stats.totalAsked += currentSet.length; stats.totalCorrect += setCorrectCount; localStorage.setItem('shikaku_stats', JSON.stringify(stats)); updateMainStatsDisplay(); } document.getElementById('quiz-screen').classList.add('hidden'); document.getElementById('timer-ui').classList.add('hidden'); document.getElementById('progress-indicator').classList.add('hidden'); document.getElementById('global-settings-btn').style.display = 'none'; document.getElementById('checkpoint-screen').classList.remove('hidden'); const count = isWeaknessMode ? (currentSet.length - wrongQuestions.length) : setCorrectCount; document.getElementById('checkpoint-stats').innerHTML = `${count} / ${currentSet.length} CLEAR`; document.getElementById('retry-section').className = (!isRetryMode && wrongQuestions.length > 0) ? '' : 'hidden'; document.getElementById('next-set-btn').style.display = isWeaknessMode ? 'none' : 'block'; }
-    function goBack() { cancelAnimationFrame(timerInterval); stopBGM(); location.reload(); }
-    function startRetry() { isRetryMode = true; currentSet = [...wrongQuestions]; wrongQuestions = []; currentIdx = 0; showQuiz(); }
-    function continueNext() { startNewSet(); }
-    function startWeaknessMode(category) { isWeaknessMode = true; isRetryMode = false; const targetWeakness = weaknessPool.filter(q => q.category === category); currentSet = targetWeakness.sort(() => Math.random() - 0.5).slice(0, 10); currentIdx = 0; wrongQuestions = []; setCorrectCount = 0; showQuiz(); }
-    function resolveWeakness() { const currentQ = currentSet[currentIdx]; weaknessPool = weaknessPool.filter(item => item.question !== currentQ.question); localStorage.setItem('shikaku_weakness', JSON.stringify(weaknessPool)); updateMainStatsDisplay(); nextStep(); }
+
+    // ==========================================
+    // クイズエンジン
+    // ==========================================
+    function loadCSV(path) { 
+        Papa.parse(`questions/${path}`, { 
+            download: true, 
+            header: true, 
+            skipEmptyLines: true, 
+            complete: results => { 
+                pool = results.data.sort(() => Math.random() - 0.5); 
+                startNewSet(); 
+            } 
+        }); 
+    }
+
+    function startNewSet() { 
+        isRetryMode = false; 
+        isWeaknessMode = false; 
+        isExamMode = false; 
+        isExamWeaknessMode = false;
+        
+        wrongQuestions = []; 
+        setCorrectCount = 0; 
+        currentSet = pool.splice(0, 10); 
+        
+        if (currentSet.length === 0) { 
+            handleBack(); 
+            return; 
+        } 
+        currentIdx = 0; 
+        showQuiz(); 
+    }
+
+    function startExam(file) {
+        currentExamFile = file;
+        const savedState = localStorage.getItem(`exam_state_${file}`);
+        
+        if (savedState) {
+            if (confirm("中断したデータがあります。続きから再開しますか？\n（キャンセルを選ぶと最初からスタートします）")) {
+                const state = JSON.parse(savedState);
+                isExamMode = true; 
+                // タイマー強制ON処理を削除済み
+                pool = state.pool; 
+                currentSet = pool;
+                currentIdx = state.currentIdx; 
+                examRemainingTime = state.time; 
+                examCurrentScore = state.score;
+                showQuiz();
+                return;
+            } else {
+                localStorage.removeItem(`exam_state_${file}`);
+            }
+        }
+        
+        isExamMode = true; 
+        isExamWeaknessMode = false; 
+        // タイマー強制ON処理を削除済み
+        examRemainingTime = 130 * 60; 
+        examCurrentScore = 0;
+        currentIdx = 0;
+        wrongQuestions = [];
+        multiSelected = [];
+        setCorrectCount = 0;
+
+        Papa.parse(`questions/AWS/${file}`, {
+            download: true, 
+            header: true, 
+            skipEmptyLines: true,
+            complete: results => { 
+                pool = results.data.map(q => ({...q, isExam: true})); 
+                currentSet = pool; 
+                showQuiz(); 
+            }
+        });
+    }
+
+    function saveExamState() {
+        if (!isExamMode) return;
+        const state = { 
+            pool: pool, 
+            currentIdx: currentIdx, 
+            time: examRemainingTime, 
+            score: examCurrentScore 
+        };
+        localStorage.setItem(`exam_state_${currentExamFile}`, JSON.stringify(state));
+    }
+
+    function showQuiz() { 
+        navigateTo('quiz-screen');
+        document.getElementById('progress-indicator').classList.remove('hidden'); 
+        document.getElementById('global-settings-btn').style.display = 'flex'; 
+        if (isTimerEnabled) {
+            document.getElementById('timer-ui').classList.remove('hidden'); 
+        }
+        startBGM(); 
+        renderQuestion(); 
+    }
+
+    function renderQuestion() { 
+        cancelAnimationFrame(timerInterval); 
+        document.getElementById('quiz-screen').classList.remove('shake'); 
+        document.getElementById('result-box').classList.add('hidden'); 
+        document.getElementById('multi-submit-btn').classList.add('hidden');
+        multiSelected = [];
+
+        const q = currentSet[currentIdx]; 
+        const total = currentSet.length;
+        
+        document.getElementById('progress-indicator').innerText = isExamMode ? `EXAM: ${currentIdx + 1} / ${total}` : `Q: ${currentIdx + 1} / ${total}`; 
+        document.getElementById('q-text').innerText = q.question; 
+        
+        const list = document.getElementById('options-list'); 
+        list.innerHTML = ''; 
+
+        const isMulti = q.answer.toString().includes(',');
+
+        [1,2,3,4,5].forEach(num => { 
+            if (q[`option${num}`]) { 
+                const b = document.createElement('button'); 
+                b.className = 'option-btn'; 
+                b.id = `opt-${num}`;
+                b.innerText = q[`option${num}`]; 
+                b.onclick = () => {
+                    // 選択肢は音を鳴らさない
+                    if (isMulti) {
+                        b.classList.toggle('selected');
+                        const idx = multiSelected.indexOf(num);
+                        if (idx > -1) {
+                            multiSelected.splice(idx, 1); 
+                        } else {
+                            multiSelected.push(num);
+                        }
+                    } else {
+                        checkAnswer(num);
+                    }
+                };
+                list.appendChild(b); 
+            } 
+        }); 
+
+        if (isMulti) {
+            document.getElementById('multi-submit-btn').classList.remove('hidden');
+        }
+
+        if (isTimerEnabled) {
+            if (isExamMode) startExamTimer();
+            else startSmoothTimer();
+        }
+    }
+
+    function submitMultiAnswer() { 
+        checkAnswer(multiSelected.sort().join(',')); 
+    }
+
+    function startSmoothTimer() {
+        const duration = 30000;
+        const startTimestamp = performance.now();
+        function update(now) {
+            const elapsed = now - startTimestamp;
+            const remaining = Math.max(0, duration - elapsed);
+            timeLeft = remaining / 1000;
+            
+            document.getElementById('timer-bar').style.width = (timeLeft / 30 * 100) + "%";
+            document.getElementById('timer-num').innerText = timeLeft.toFixed(1);
+            
+            if (remaining > 0) {
+                timerInterval = requestAnimationFrame(update);
+            } else {
+                checkAnswer(-1);
+            }
+        }
+        timerInterval = requestAnimationFrame(update);
+    }
+
+    function startExamTimer() {
+        document.getElementById('timer-label').innerText = "LIMIT:";
+        function update() {
+            if (examRemainingTime <= 0) { 
+                checkAnswer(-1); 
+                return; 
+            }
+            examRemainingTime -= 1/60;
+            const m = Math.floor(examRemainingTime / 60);
+            const s = Math.floor(examRemainingTime % 60);
+            
+            document.getElementById('timer-num').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+            document.getElementById('timer-bar').style.width = (examRemainingTime / (130 * 60) * 100) + "%";
+            
+            timerInterval = requestAnimationFrame(update);
+        }
+        timerInterval = requestAnimationFrame(update);
+    }
+
+    function checkAnswer(selected) { 
+        cancelAnimationFrame(timerInterval); 
+        const q = currentSet[currentIdx];
+        
+        const correctAnswers = q.answer.toString().split(',').map(s => s.trim()).sort().join(',');
+        const selectedStr = selected.toString().split(',').map(s => s.trim()).sort().join(',');
+        const isCorrect = (selectedStr === correctAnswers); 
+
+        // ★ 音声の再生を最優先で実行し、UIの更新を遅らせる
+        playSE(isCorrect ? 'correct' : 'wrong');
+
+        setTimeout(() => {
+            q.answer.toString().split(',').forEach(aNum => {
+                const btn = document.getElementById(`opt-${aNum.trim()}`);
+                if(btn) btn.classList.add('correct-highlight');
+            });
+
+            if (isCorrect) { 
+                const circle = document.getElementById('circle-anime'); 
+                circle.classList.add('run-anime'); 
+                setTimeout(() => circle.classList.remove('run-anime'), 500); 
+                
+                if (isExamMode) {
+                    const weights = { "1": 30, "2": 26, "3": 24, "4": 20 };
+                    examCurrentScore += (1000 / 65) * ((weights[q.domain] || 25) / 25);
+                } else if (!isRetryMode && !isWeaknessMode && !isExamWeaknessMode) {
+                    setCorrectCount++;
+                }
+            } else { 
+                document.getElementById('quiz-screen').classList.add('shake'); 
+                
+                if (!isRetryMode && !isWeaknessMode && !isExamWeaknessMode) { 
+                    if (isExamMode) {
+                        const exists = examWeaknessPool.some(item => item.question === q.question);
+                        if (!exists) { 
+                            examWeaknessPool.push({...q, category: currentCategory, isExam: true}); 
+                            localStorage.setItem('shikaku_exam_weakness', JSON.stringify(examWeaknessPool)); 
+                        }
+                    } else {
+                        const exists = weaknessPool.some(item => item.question === q.question); 
+                        if (!exists) { 
+                            weaknessPool.push({ ...q, category: currentCategory }); 
+                            localStorage.setItem('shikaku_weakness', JSON.stringify(weaknessPool)); 
+                        } 
+                    }
+                    wrongQuestions.push(q); 
+                    updateMainStatsDisplay();
+                } 
+                setTimeout(() => document.getElementById('quiz-screen').classList.remove('shake'), 500);
+            } 
+
+            document.getElementById('multi-submit-btn').classList.add('hidden');
+            const rb = document.getElementById('result-box'); 
+            rb.classList.remove('hidden'); 
+            rb.className = `result ${isCorrect ? 'correct' : 'wrong'}`; 
+            
+            document.getElementById('ans-status').innerText = isCorrect ? "SUCCESS!!" : "FAILED..."; 
+            document.getElementById('ans-desc').innerText = q.explanation; 
+            
+            // NEXTボタンの制御
+            const isSpecialAction = (isWeaknessMode || isExamWeaknessMode || isRetryMode) && isCorrect;
+            document.getElementById('normal-action').classList.toggle('hidden', isSpecialAction);
+            document.getElementById('weak-correct-action').classList.toggle('hidden', !isSpecialAction);
+            
+            if (isSpecialAction) {
+                const btnErase = document.getElementById('weak-correct-action').querySelector('.primary');
+                if (isRetryMode) {
+                    document.getElementById('weak-action-msg').innerText = "ADD TO WEAK BOX?";
+                    btnErase.innerText = "ADD";
+                } else {
+                    document.getElementById('weak-action-msg').innerText = "DELETE FROM WEAK BOX?";
+                    btnErase.innerText = "ERASE";
+                }
+            }
+
+            document.querySelectorAll('.option-btn').forEach(b => b.disabled = true); 
+            
+            if(isExamMode) saveExamState();
+
+        }, 10); // 10ms遅延させてブラウザの音声処理を優先させる
+    }
+
+    function nextStep() { 
+        currentIdx++; 
+        if (currentIdx < currentSet.length) {
+            renderQuestion(); 
+        } else {
+            showCheckpoint(); 
+        }
+    }
+
+    function showCheckpoint() { 
+        navigateTo('checkpoint-screen');
+        document.getElementById('timer-ui').classList.add('hidden'); 
+        document.getElementById('progress-indicator').classList.add('hidden'); 
+        document.getElementById('global-settings-btn').style.display = 'none'; 
+
+        if (isExamMode) {
+            localStorage.removeItem(`exam_state_${currentExamFile}`);
+            const finalScore = Math.min(1000, Math.round(examCurrentScore));
+            const passed = finalScore >= 720;
+            
+            document.getElementById('checkpoint-title').innerText = passed ? "CONGRATULATIONS!" : "MISSION FAILED";
+            document.getElementById('checkpoint-stats').innerHTML = `SCORE: ${finalScore} / 1000<br><span style="color:${passed? 'var(--success)':'var(--primary)'}">${passed?'PASSED':'FAILED'}</span>`;
+            
+            document.getElementById('next-set-btn').classList.add('hidden');
+            document.getElementById('retry-section').className = (wrongQuestions.length > 0) ? '' : 'hidden';
+            
+        } else {
+            if (!isRetryMode && !isWeaknessMode && !isExamWeaknessMode) { 
+                stats.totalAsked += currentSet.length; 
+                stats.totalCorrect += setCorrectCount; 
+                localStorage.setItem('shikaku_stats', JSON.stringify(stats)); 
+                updateMainStatsDisplay(); 
+            } 
+            
+            const count = (isWeaknessMode || isExamWeaknessMode) ? (currentSet.length - wrongQuestions.length) : setCorrectCount; 
+            
+            document.getElementById('checkpoint-title').innerText = "RESULT";
+            document.getElementById('checkpoint-stats').innerHTML = `${count} / ${currentSet.length} CLEAR`; 
+            document.getElementById('retry-section').className = (!isRetryMode && !isWeaknessMode && !isExamWeaknessMode && wrongQuestions.length > 0) ? '' : 'hidden'; 
+            
+            const listToCheck = isExamWeaknessMode ? examWeaknessPool : weaknessPool;
+            const targetPool = (isWeaknessMode || isExamWeaknessMode) ? listToCheck.filter(q => q.category === currentCategory) : pool;
+            const hasNext = targetPool.length > 0;
+            
+            document.getElementById('next-set-btn').classList.toggle('hidden', !hasNext);
+        }
+    }
+    
+    function startRetry() { 
+        isRetryMode = true; 
+        isWeaknessMode = false; 
+        isExamWeaknessMode = false; 
+        isExamMode = false;
+        currentSet = [...wrongQuestions]; 
+        wrongQuestions = []; 
+        currentIdx = 0; 
+        showQuiz(); 
+    }
+    
+    function continueNext() { 
+        if (isWeaknessMode) startWeaknessMode(false);
+        else if (isExamWeaknessMode) startWeaknessMode(true);
+        else startNewSet(); 
+    }
+
+    function startWeaknessMode(isExam) { 
+        isExamWeaknessMode = isExam; 
+        isWeaknessMode = !isExam; 
+        isRetryMode = false; 
+        isExamMode = false;
+        
+        const targetPool = isExam ? examWeaknessPool : weaknessPool;
+        const targetItems = targetPool.filter(q => q.category === currentCategory); 
+        
+        if (targetItems.length === 0) { handleBack(); return; }
+        
+        currentSet = targetItems.sort(() => Math.random() - 0.5).slice(0, 10); 
+        currentIdx = 0; 
+        wrongQuestions = []; 
+        setCorrectCount = 0; 
+        showQuiz(); 
+    }
+
+    function resolveWeakness() { 
+        const currentQ = currentSet[currentIdx]; 
+        if (isRetryMode) {
+            if (currentQ.isExam) {
+                if (!examWeaknessPool.some(item => item.question === currentQ.question)) {
+                    examWeaknessPool.push({ ...currentQ, category: currentCategory });
+                    localStorage.setItem('shikaku_exam_weakness', JSON.stringify(examWeaknessPool));
+                }
+            } else {
+                if (!weaknessPool.some(item => item.question === currentQ.question)) {
+                    weaknessPool.push({ ...currentQ, category: currentCategory });
+                    localStorage.setItem('shikaku_weakness', JSON.stringify(weaknessPool));
+                }
+            }
+        } else {
+            if (isExamWeaknessMode) {
+                examWeaknessPool = examWeaknessPool.filter(item => item.question !== currentQ.question); 
+                localStorage.setItem('shikaku_exam_weakness', JSON.stringify(examWeaknessPool));
+            } else {
+                weaknessPool = weaknessPool.filter(item => item.question !== currentQ.question); 
+                localStorage.setItem('shikaku_weakness', JSON.stringify(weaknessPool)); 
+            }
+        }
+        updateMainStatsDisplay(); 
+        nextStep(); 
+    }
+
     function stayInWeakness() { nextStep(); }
-    function resetStats() { if(confirm("ERASE ALL RECORDS?")) { stats = { totalAsked: 0, totalCorrect: 0 }; weaknessPool = []; localStorage.setItem('shikaku_stats', JSON.stringify(stats)); localStorage.setItem('shikaku_weakness', JSON.stringify(weaknessPool)); updateMainStatsDisplay(); } }
+
+    function resetStats() { 
+        if(confirm("ERASE ALL RECORDS?")) { 
+            stats = { totalAsked: 0, totalCorrect: 0 }; 
+            weaknessPool = []; 
+            examWeaknessPool = [];
+            localStorage.clear(); 
+            location.reload(); 
+        } 
+    }
+
+    // 初期化処理の実行
+    window.addEventListener('DOMContentLoaded', initializeMainMenu);
+
 </script>
 </body>
 </html>
