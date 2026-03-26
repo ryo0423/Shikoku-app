@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="image.png">
-    <link rel="apple-touch-icon" href="image.png">
+    <link rel="icon" href="icon_p5isekai.jpeg">
+    <link rel="apple-touch-icon" href="icon_p5isekai.jpeg">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>資格学習プロ | STYLISH EDITION</title>
@@ -327,7 +327,7 @@
             bottom: 0; 
             left: 0; 
             width: 100%; 
-            height: 60px; 
+            height: 50px; /* 高さを60pxから50pxにスリム化 */
             background: #000; 
             border-top: 4px solid var(--primary); 
             display: flex; 
@@ -477,7 +477,7 @@
 
 <div id="timer-ui" class="timer-container hidden">
     <div id="timer-bar" class="timer-bar"></div>
-    <div style="position:relative; font-size:28px; font-weight:900;"><span id="timer-label">TIME:</span> <span id="timer-num">30.0</span></div>
+    <div style="position:relative; font-size:22px; font-weight:900;"><span id="timer-label">TIME:</span> <span id="timer-num">30.0</span></div>
 </div>
 
 <script>
@@ -847,7 +847,6 @@
             if (confirm("中断したデータがあります。続きから再開しますか？\n（キャンセルを選ぶと最初からスタートします）")) {
                 const state = JSON.parse(savedState);
                 isExamMode = true; 
-                // タイマー強制ON処理を削除済み
                 pool = state.pool; 
                 currentSet = pool;
                 currentIdx = state.currentIdx; 
@@ -862,7 +861,6 @@
         
         isExamMode = true; 
         isExamWeaknessMode = false; 
-        // タイマー強制ON処理を削除済み
         examRemainingTime = 130 * 60; 
         examCurrentScore = 0;
         currentIdx = 0;
@@ -929,7 +927,6 @@
                 b.id = `opt-${num}`;
                 b.innerText = q[`option${num}`]; 
                 b.onclick = () => {
-                    // 選択肢は音を鳴らさない
                     if (isMulti) {
                         b.classList.toggle('selected');
                         const idx = multiSelected.indexOf(num);
@@ -1007,7 +1004,6 @@
         const selectedStr = selected.toString().split(',').map(s => s.trim()).sort().join(',');
         const isCorrect = (selectedStr === correctAnswers); 
 
-        // ★ 音声の再生を最優先で実行し、UIの更新を遅らせる
         playSE(isCorrect ? 'correct' : 'wrong');
 
         setTimeout(() => {
@@ -1058,7 +1054,6 @@
             document.getElementById('ans-status').innerText = isCorrect ? "SUCCESS!!" : "FAILED..."; 
             document.getElementById('ans-desc').innerText = q.explanation; 
             
-            // NEXTボタンの制御
             const isSpecialAction = (isWeaknessMode || isExamWeaknessMode || isRetryMode) && isCorrect;
             document.getElementById('normal-action').classList.toggle('hidden', isSpecialAction);
             document.getElementById('weak-correct-action').classList.toggle('hidden', !isSpecialAction);
@@ -1078,7 +1073,7 @@
             
             if(isExamMode) saveExamState();
 
-        }, 10); // 10ms遅延させてブラウザの音声処理を優先させる
+        }, 10); 
     }
 
     function nextStep() { 
