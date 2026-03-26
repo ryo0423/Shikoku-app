@@ -322,22 +322,19 @@
             border-radius: 50%; 
         }
 
-        /* -------------------------------------
-           タイマーの表示を元の「最も見やすく滑らかな設定」に復元
-           ------------------------------------- */
         .timer-container { 
             position: fixed; 
             bottom: 0; 
             left: 0; 
             width: 100%; 
-            height: 65px; /* 高さを本来の65pxに復元 */
+            height: 60px; 
             background: #000; 
             border-top: 4px solid var(--primary); 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             z-index: 100; 
-            /* box-shadow: ... ← 不要な影を削除しました */
+            box-shadow: 0 -5px 15px rgba(211,18,18,0.2); 
         }
         .timer-bar { 
             position: absolute; 
@@ -345,9 +342,8 @@
             left: 0; 
             height: 100%; 
             background: var(--primary); 
-            width: 0%; 
+            width: 100%; 
             opacity: 0.5; 
-            transition: width 0.1s linear; /* 滑らかなゲージのアニメーションを復元 */
         }
 
         .correct-anime { 
@@ -395,13 +391,6 @@
 <div id="settings-modal" onclick="closeSettings()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 style="font-size: 30px; margin-bottom: 30px; font-weight: 900;">CONFIG</h2>
-        <div class="volume-control" style="text-align: center; margin-bottom: 25px;">
-            <span class="volume-label" style="display: block; margin-bottom: 10px;">TIMER</span>
-            <div class="mode-toggle" style="margin-bottom: 0;">
-                <button id="mode-on" class="toggle-btn active" onclick="clickWrapper(() => setTimerMode(true))">ON</button>
-                <button id="mode-off" class="toggle-btn" onclick="clickWrapper(() => setTimerMode(false))">OFF</button>
-            </div>
-        </div>
         <div class="volume-control">
             <span class="volume-label">BGM VOLUME</span>
             <input type="range" min="0" max="1" step="0.01" value="0.08" class="slider" id="bgm-slider" oninput="updateBgmVolume(this.value)">
@@ -418,7 +407,7 @@
     <header class="app-header">
         <button id="global-back-btn" class="back-btn" onclick="clickWrapper(() => handleBack())">◀ BACK</button>
         <div id="progress-indicator" class="progress-indicator hidden">Q: 1 / 10</div>
-        <button id="global-settings-btn" class="settings-btn" style="display:flex; margin-left:auto;" onclick="clickWrapper(() => openSettings())"><div class="settings-icon-bar"></div></button>
+        <button id="global-settings-btn" class="settings-btn" onclick="clickWrapper(() => openSettings())"><div class="settings-icon-bar"></div></button>
     </header>
 
     <div id="genre-screen" class="card">
@@ -428,6 +417,11 @@
             <div class="stats-item">TOTAL RECORD<b><span id="total-count">0</span></b></div>
             <div class="stats-item">SUCCESS RATE<b><span id="total-rate">0%</span></b></div>
             <div class="stats-item">WEAK BOX<b><span id="weak-total-count">0</span></b></div>
+        </div>
+
+        <div class="mode-toggle">
+            <button id="mode-on" class="toggle-btn active" onclick="clickWrapper(() => setTimerMode(true))">TIMER ON</button>
+            <button id="mode-off" class="toggle-btn" onclick="clickWrapper(() => setTimerMode(false))">TIMER OFF</button>
         </div>
 
         <div id="main-qual-list">
@@ -483,7 +477,7 @@
 
 <div id="timer-ui" class="timer-container hidden">
     <div id="timer-bar" class="timer-bar"></div>
-    <div style="position:relative; font-size:26px; font-weight:900;"><span id="timer-label">TIME:</span> <span id="timer-num">30.0</span></div>
+    <div style="position:relative; font-size:28px; font-weight:900;"><span id="timer-label">TIME:</span> <span id="timer-num">30.0</span></div>
 </div>
 
 <script>
@@ -656,6 +650,7 @@
         
         document.getElementById('timer-ui').classList.add('hidden');
         document.getElementById('progress-indicator').classList.add('hidden');
+        document.getElementById('global-settings-btn').style.display = 'none';
 
         if (isExamMode && currentScreen === 'quiz-screen') {
             saveExamState();
@@ -684,13 +679,8 @@
 
     function setTimerMode(enabled) {
         isTimerEnabled = enabled;
-        // モーダル内のボタンの見た目を切り替え
-        const btnOn = document.getElementById('mode-on');
-        const btnOff = document.getElementById('mode-off');
-        if (btnOn && btnOff) {
-            btnOn.classList.toggle('active', enabled);
-            btnOff.classList.toggle('active', !enabled);
-        }
+        document.getElementById('mode-on').classList.toggle('active', enabled);
+        document.getElementById('mode-off').classList.toggle('active', !enabled);
     }
 
     // ==========================================
@@ -811,54 +801,8 @@
                 btn.style.border = "3px solid black";
             }
 
-            btn.onclick = () => {
-                if (savedState) {
-                    if (confirm("中断したデータがあります。続きから再開しますか？\n（キャンセルを選ぶと最初からスタートします）")) {
-                        clickWrapper(() => {
-                            const state = JSON.parse(savedState);
-                            isExamMode = true; 
-                            pool = state.pool; 
-                            currentSet = pool;
-                            currentIdx = state.currentIdx; 
-                            examRemainingTime = state.time; 
-                            examCurrentScore = state.score;
-                            currentExamFile = ex.file;
-                            showQuiz();
-                        });
-                    } else {
-                        clickWrapper(() => {
-                            localStorage.removeItem(`exam_state_${ex.file}`);
-                            startNewExam(ex.file);
-                        });
-                    }
-                } else {
-                    clickWrapper(() => startNewExam(ex.file));
-                }
-            };
+            btn.onclick = () => clickWrapper(() => startExam(ex.file));
             list.appendChild(btn);
-        });
-    }
-
-    function startNewExam(file) {
-        currentExamFile = file;
-        isExamMode = true; 
-        isExamWeaknessMode = false; 
-        examRemainingTime = 130 * 60; 
-        examCurrentScore = 0;
-        currentIdx = 0;
-        wrongQuestions = [];
-        multiSelected = [];
-        setCorrectCount = 0;
-
-        Papa.parse(`questions/AWS/${file}`, {
-            download: true, 
-            header: true, 
-            skipEmptyLines: true,
-            complete: results => { 
-                pool = results.data.map(q => ({...q, isExam: true})); 
-                currentSet = pool; 
-                showQuiz(); 
-            }
         });
     }
 
@@ -895,6 +839,49 @@
         showQuiz(); 
     }
 
+    function startExam(file) {
+        currentExamFile = file;
+        const savedState = localStorage.getItem(`exam_state_${file}`);
+        
+        if (savedState) {
+            if (confirm("中断したデータがあります。続きから再開しますか？\n（キャンセルを選ぶと最初からスタートします）")) {
+                const state = JSON.parse(savedState);
+                isExamMode = true; 
+                // タイマー強制ON処理を削除済み
+                pool = state.pool; 
+                currentSet = pool;
+                currentIdx = state.currentIdx; 
+                examRemainingTime = state.time; 
+                examCurrentScore = state.score;
+                showQuiz();
+                return;
+            } else {
+                localStorage.removeItem(`exam_state_${file}`);
+            }
+        }
+        
+        isExamMode = true; 
+        isExamWeaknessMode = false; 
+        // タイマー強制ON処理を削除済み
+        examRemainingTime = 130 * 60; 
+        examCurrentScore = 0;
+        currentIdx = 0;
+        wrongQuestions = [];
+        multiSelected = [];
+        setCorrectCount = 0;
+
+        Papa.parse(`questions/AWS/${file}`, {
+            download: true, 
+            header: true, 
+            skipEmptyLines: true,
+            complete: results => { 
+                pool = results.data.map(q => ({...q, isExam: true})); 
+                currentSet = pool; 
+                showQuiz(); 
+            }
+        });
+    }
+
     function saveExamState() {
         if (!isExamMode) return;
         const state = { 
@@ -909,6 +896,7 @@
     function showQuiz() { 
         navigateTo('quiz-screen');
         document.getElementById('progress-indicator').classList.remove('hidden'); 
+        document.getElementById('global-settings-btn').style.display = 'flex'; 
         if (isTimerEnabled) {
             document.getElementById('timer-ui').classList.remove('hidden'); 
         }
@@ -1019,6 +1007,7 @@
         const selectedStr = selected.toString().split(',').map(s => s.trim()).sort().join(',');
         const isCorrect = (selectedStr === correctAnswers); 
 
+        // ★ 音声の再生を最優先で実行し、UIの更新を遅らせる
         playSE(isCorrect ? 'correct' : 'wrong');
 
         setTimeout(() => {
@@ -1069,6 +1058,7 @@
             document.getElementById('ans-status').innerText = isCorrect ? "SUCCESS!!" : "FAILED..."; 
             document.getElementById('ans-desc').innerText = q.explanation; 
             
+            // NEXTボタンの制御
             const isSpecialAction = (isWeaknessMode || isExamWeaknessMode || isRetryMode) && isCorrect;
             document.getElementById('normal-action').classList.toggle('hidden', isSpecialAction);
             document.getElementById('weak-correct-action').classList.toggle('hidden', !isSpecialAction);
@@ -1088,7 +1078,7 @@
             
             if(isExamMode) saveExamState();
 
-        }, 10); 
+        }, 10); // 10ms遅延させてブラウザの音声処理を優先させる
     }
 
     function nextStep() { 
@@ -1104,6 +1094,7 @@
         navigateTo('checkpoint-screen');
         document.getElementById('timer-ui').classList.add('hidden'); 
         document.getElementById('progress-indicator').classList.add('hidden'); 
+        document.getElementById('global-settings-btn').style.display = 'none'; 
 
         if (isExamMode) {
             localStorage.removeItem(`exam_state_${currentExamFile}`);
@@ -1204,13 +1195,11 @@
 
     function resetStats() { 
         if(confirm("ERASE ALL RECORDS?")) { 
-            clickWrapper(() => {
-                stats = { totalAsked: 0, totalCorrect: 0 }; 
-                weaknessPool = []; 
-                examWeaknessPool = [];
-                localStorage.clear(); 
-                location.reload(); 
-            });
+            stats = { totalAsked: 0, totalCorrect: 0 }; 
+            weaknessPool = []; 
+            examWeaknessPool = [];
+            localStorage.clear(); 
+            location.reload(); 
         } 
     }
 
